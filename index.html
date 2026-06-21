@@ -59,6 +59,17 @@
             outline: none;
             border-color: #667eea;
         }
+        .api-key-info .hint {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .api-key-info .hint code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
         .api-url-info {
             background: #e8f5e9;
             padding: 15px;
@@ -130,7 +141,8 @@
             background: #007bff;
             color: white;
         }
-        .card input, .card select {
+        .card input,
+        .card select {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
@@ -182,9 +194,9 @@
             border-color: #dc3545;
             background: #fff5f5;
         }
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
+        .response.info {
+            border-color: #17a2b8;
+            background: #f0f9ff;
         }
         .badge {
             display: inline-block;
@@ -214,8 +226,12 @@
             margin-right: 8px;
         }
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
         @media (max-width: 768px) {
             .grid {
@@ -247,30 +263,55 @@
         .warning-box strong {
             color: #856404;
         }
+        .success-box {
+            background: #d4edda;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-left: 4px solid #28a745;
+        }
+        .success-box strong {
+            color: #155724;
+        }
+        .format-example {
+            background: #2d2d2d;
+            color: #f8f8f8;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 5px;
+            overflow-x: auto;
+        }
+        .format-example .key {
+            color: #ff79c6;
+        }
+        .format-example .value {
+            color: #f1fa8c;
+        }
+        .format-example .string {
+            color: #50fa7b;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📱 Nokos API Web</h1>
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
-        
-        <div class="warning-box">
-            <strong>⚠️ PERHATIAN:</strong> API Key <code>zelapi-4hwd4va</code> tidak valid (error: "Failed to authenticate with Numberpanel"). 
-            Silakan ganti dengan API Key yang benar dari penyedia layanan.
-        </div>
-        
+
         <div class="info-box">
-            <strong>ℹ️ Catatan:</strong> Endpoint <code>/countries</code>, <code>/services</code>, <code>/my_numbers</code> mengembalikan 404 - mungkin tidak tersedia di API ini.
+            <strong>📌 Format API Key:</strong> <code>zel_xxxxxxxxxxxxxxxxx</code> (contoh: <code>zel_abc123def456</code>)
         </div>
-        
+
         <div class="api-url-info">
             <strong>🌐 API Base URL:</strong> <code>https://zelapioffciall.dpdns.org/api/v1/nokos</code>
         </div>
-        
+
         <div class="api-key-info">
             <label>🔑 API Key:</label>
-            <input type="text" id="apiKeyInput" value="zelapi-4hwd4va" placeholder="Masukkan API Key Anda">
-            <small style="color: #666; display: block; margin-top: 5px;">⚠️ API Key saat ini tidak valid - ganti dengan yang benar</small>
+            <input type="text" id="apiKeyInput" value="zel_xxxxxxxxxxxxxxxxx" placeholder="zel_xxxxxxxxxxxxxxxxx">
+            <span class="hint">Format: <code>zel_</code> diikuti dengan huruf/angka (contoh: <code>zel_abc123def456</code>)</span>
         </div>
 
         <div class="test-connection">
@@ -287,7 +328,8 @@
                     📊 Last Numbers
                     <span class="method get">GET</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan nomor terakhir</p>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan daftar nomor terakhir</p>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: [[service, number, otp, time, country]]</p>
                 <button onclick="fetchEndpoint('/last', this)">Get Last Numbers</button>
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -309,7 +351,8 @@
                     📡 Feed
                     <span class="method get">GET</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed terbaru</p>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed OTP terbaru</p>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: [{number, service, otp, time}]</p>
                 <button onclick="fetchEndpoint('/feed', this)">Get Feed</button>
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -320,6 +363,7 @@
                     📞 Request Number
                     <span class="method post">POST</span>
                 </h3>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {success, number, id}</p>
                 <select id="request-service">
                     <option value="telegram">Telegram</option>
                     <option value="whatsapp">WhatsApp</option>
@@ -347,50 +391,19 @@
                     🔐 Latest OTP
                     <span class="method get">GET</span>
                 </h3>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {otps: {number: otp}}</p>
                 <input type="text" id="otp-number" placeholder="+1234567890">
                 <button onclick="getLatestOTP()">Get Latest OTP</button>
                 <div class="response" id="otp-response">Masukkan nomor dan klik tombol</div>
             </div>
 
-            <!-- Card 6: Countries -->
-            <div class="card">
-                <h3>
-                    🌍 Countries
-                    <span class="method get">GET</span>
-                </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar negara yang tersedia</p>
-                <button onclick="fetchEndpoint('/countries', this)">Get Countries</button>
-                <div class="response" id="countries-response">⚠️ Endpoint ini 404 - mungkin tidak tersedia</div>
-            </div>
-
-            <!-- Card 7: Services -->
-            <div class="card">
-                <h3>
-                    🛠 Services
-                    <span class="method get">GET</span>
-                </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar layanan yang tersedia</p>
-                <button onclick="fetchEndpoint('/services', this)">Get Services</button>
-                <div class="response" id="services-response">⚠️ Endpoint ini 404 - mungkin tidak tersedia</div>
-            </div>
-
-            <!-- Card 8: My Numbers -->
-            <div class="card">
-                <h3>
-                    📱 My Numbers
-                    <span class="method get">GET</span>
-                </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Nomor-nomor Anda</p>
-                <button onclick="fetchEndpoint('/my_numbers', this)">Get My Numbers</button>
-                <div class="response" id="mynumbers-response">⚠️ Endpoint ini 404 - mungkin tidak tersedia</div>
-            </div>
-
-            <!-- Card 9: Release Number -->
+            <!-- Card 6: Release Number -->
             <div class="card">
                 <h3>
                     ♻️ Release Number
                     <span class="method post">POST</span>
                 </h3>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {success, message}</p>
                 <input type="text" id="release-number" placeholder="+1234567890">
                 <button onclick="releaseNumber()">Release Number</button>
                 <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
@@ -407,6 +420,15 @@
                 alert('Masukkan API Key terlebih dahulu!');
                 return null;
             }
+            // Validasi format API Key
+            if (!key.startsWith('zel_')) {
+                alert('⚠️ Format API Key salah! Harus dimulai dengan "zel_" (contoh: zel_abc123def456)');
+                return null;
+            }
+            if (key === 'zel_xxxxxxxxxxxxxxxxx') {
+                alert('⚠️ Ini hanya contoh! Ganti dengan API Key asli Anda.');
+                return null;
+            }
             return key;
         }
 
@@ -419,11 +441,22 @@
             };
         }
 
+        function formatResponse(data) {
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    return data;
+                }
+            }
+            return JSON.stringify(data, null, 2);
+        }
+
         async function testConnection() {
             const statusSpan = document.getElementById('test-status');
             const resultDiv = document.getElementById('test-result');
             const apiKey = getApiKey();
-            
+
             if (!apiKey) return;
 
             statusSpan.innerHTML = '<span class="spinner"></span> Testing...';
@@ -431,11 +464,10 @@
             resultDiv.style.color = '#000';
 
             try {
-                // Coba endpoint yang paling mungkin ada
                 const res = await fetch(`${API_BASE}/last`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-                
+
                 if (res.ok) {
                     const data = await res.json();
                     statusSpan.innerHTML = '✅ <span class="status-ok">Connected! API merespon dengan baik</span>';
@@ -443,26 +475,18 @@
                     resultDiv.style.color = '#28a745';
                 } else {
                     const text = await res.text();
-                    
-                    // Cek apakah response JSON dengan error
                     try {
                         const jsonData = JSON.parse(text);
                         if (jsonData.error && jsonData.error.message) {
                             statusSpan.innerHTML = `❌ <span class="status-error">Error: ${jsonData.error.message}</span>`;
-                            resultDiv.textContent = `Status: ${res.status}\nError: ${jsonData.error.message}\nType: ${jsonData.error.type || 'unknown'}`;
+                            resultDiv.textContent = `Status: ${res.status}\nError: ${jsonData.error.message}`;
                         } else {
                             statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
-                            resultDiv.textContent = `Response: ${text.substring(0, 500)}`;
+                            resultDiv.textContent = `Response: ${JSON.stringify(jsonData, null, 2)}`;
                         }
                     } catch (e) {
-                        // Bukan JSON, mungkin HTML
-                        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-                            statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status} - Halaman HTML</span>`;
-                            resultDiv.textContent = `⚠️ Endpoint tidak ditemukan. Response berupa HTML.\n\n${text.substring(0, 300)}...`;
-                        } else {
-                            statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
-                            resultDiv.textContent = `Response: ${text.substring(0, 500)}`;
-                        }
+                        statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
+                        resultDiv.textContent = `Response: ${text.substring(0, 500)}`;
                     }
                     resultDiv.style.color = '#dc3545';
                 }
@@ -476,7 +500,7 @@
         async function fetchEndpoint(endpoint, button) {
             const responseDiv = button.parentElement.querySelector('.response');
             const apiKey = getApiKey();
-            
+
             if (!apiKey) return;
 
             responseDiv.className = 'response';
@@ -488,10 +512,9 @@
                 const res = await fetch(`${API_BASE}${endpoint}`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-                
+
                 const text = await res.text();
-                
-                // Cek apakah response HTML (404)
+
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
@@ -499,20 +522,19 @@
                     button.textContent = button.textContent.replace('Loading...', '');
                     return;
                 }
-                
+
                 let data;
                 try {
                     data = JSON.parse(text);
                 } catch (e) {
                     data = text;
                 }
-                
+
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                    responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
-                    // Format error dengan lebih baik
                     let errorMsg = `Error ${res.status}`;
                     if (data && typeof data === 'object') {
                         if (data.error) {
@@ -556,9 +578,9 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ service, country })
                 });
-                
+
                 const text = await res.text();
-                
+
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
@@ -566,7 +588,7 @@
                     button.textContent = 'Request Number';
                     return;
                 }
-                
+
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -576,7 +598,7 @@
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                    responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
@@ -612,7 +634,13 @@
 
             if (!number) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Mohon masukkan nomor telepon';
+                responseDiv.textContent = '❌ Mohon masukkan nomor telepon (format: +1234567890)';
+                return;
+            }
+
+            if (!number.startsWith('+')) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = '❌ Nomor harus diawali dengan + (contoh: +1234567890)';
                 return;
             }
 
@@ -625,9 +653,9 @@
                 const res = await fetch(`${API_BASE}/latest_otp?number=${encodeURIComponent(number)}`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-                
+
                 const text = await res.text();
-                
+
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
@@ -635,7 +663,7 @@
                     button.textContent = 'Get Latest OTP';
                     return;
                 }
-                
+
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -645,7 +673,7 @@
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                    responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
@@ -681,7 +709,13 @@
 
             if (!number) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Mohon masukkan nomor telepon';
+                responseDiv.textContent = '❌ Mohon masukkan nomor telepon (format: +1234567890)';
+                return;
+            }
+
+            if (!number.startsWith('+')) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = '❌ Nomor harus diawali dengan + (contoh: +1234567890)';
                 return;
             }
 
@@ -696,9 +730,9 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ number })
                 });
-                
+
                 const text = await res.text();
-                
+
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
@@ -706,7 +740,7 @@
                     button.textContent = 'Release Number';
                     return;
                 }
-                
+
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -716,7 +750,7 @@
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                    responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
