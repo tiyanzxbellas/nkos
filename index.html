@@ -300,8 +300,10 @@
         <h1>📱 Nokos API Web</h1>
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
 
-        <div class="info-box">
-            <strong>📌 Format API Key:</strong> <code>zel_xxxxxxxxxxxxxxxxx</code> (contoh: <code>zel_abc123def456</code>)
+        <div class="success-box">
+            <strong>✅ Format API Key:</strong> <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)
+            <br>
+            <small>Authorization: Bearer zelapi-hazelganteng</small>
         </div>
 
         <div class="api-url-info">
@@ -310,8 +312,8 @@
 
         <div class="api-key-info">
             <label>🔑 API Key:</label>
-            <input type="text" id="apiKeyInput" value="zel_xxxxxxxxxxxxxxxxx" placeholder="zel_xxxxxxxxxxxxxxxxx">
-            <span class="hint">Format: <code>zel_</code> diikuti dengan huruf/angka (contoh: <code>zel_abc123def456</code>)</span>
+            <input type="text" id="apiKeyInput" value="zelapi-hazelganteng" placeholder="zelapi-namakamu">
+            <span class="hint">Format: <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)</span>
         </div>
 
         <div class="test-connection">
@@ -421,12 +423,12 @@
                 return null;
             }
             // Validasi format API Key
-            if (!key.startsWith('zel_')) {
-                alert('⚠️ Format API Key salah! Harus dimulai dengan "zel_" (contoh: zel_abc123def456)');
+            if (!key.startsWith('zelapi-')) {
+                alert('⚠️ Format API Key salah! Harus dimulai dengan "zelapi-" (contoh: zelapi-hazelganteng)');
                 return null;
             }
-            if (key === 'zel_xxxxxxxxxxxxxxxxx') {
-                alert('⚠️ Ini hanya contoh! Ganti dengan API Key asli Anda.');
+            if (key === 'zelapi-') {
+                alert('⚠️ Masukkan nama setelah zelapi- (contoh: zelapi-hazelganteng)');
                 return null;
             }
             return key;
