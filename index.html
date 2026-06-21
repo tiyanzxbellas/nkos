@@ -41,8 +41,23 @@
             margin-bottom: 20px;
             border-left: 4px solid #667eea;
         }
-        .api-key-info strong {
+        .api-key-info label {
+            font-weight: 600;
             color: #667eea;
+        }
+        .api-key-info input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            background: white;
+        }
+        .api-key-info input:focus {
+            outline: none;
+            border-color: #667eea;
         }
         .test-connection {
             background: #fff3cd;
@@ -58,6 +73,7 @@
             border-radius: 5px;
             font-weight: 600;
             cursor: pointer;
+            margin-left: 10px;
         }
         .test-connection button:hover {
             background: #e0a800;
@@ -84,6 +100,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .card h3 .method {
             font-size: 12px;
@@ -125,6 +142,10 @@
         }
         .card button:active {
             transform: scale(0.98);
+        }
+        .card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .response {
             margin-top: 15px;
@@ -168,6 +189,20 @@
             color: #dc3545;
             font-weight: bold;
         }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -184,15 +219,16 @@
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
         
         <div class="api-key-info">
-            <strong>🔑 API Key:</strong> zelapi-4hwd4va
-            <span class="badge">Active</span>
+            <label>🔑 API Key:</label>
+            <input type="text" id="apiKeyInput" value="zelapi-4hwd4va" placeholder="Masukkan API Key Anda">
+            <small style="color: #666; display: block; margin-top: 5px;">API Key akan digunakan untuk semua request</small>
         </div>
 
         <div class="test-connection">
-            <strong>🔌 Test Koneksi API:</strong>
+            <strong>🔌 Test Koneksi:</strong>
             <button onclick="testConnection()">Test Connection</button>
             <span id="test-status" style="margin-left: 10px;"></span>
-            <div id="test-result" style="margin-top: 10px; font-size: 12px;"></div>
+            <div id="test-result" style="margin-top: 10px; font-size: 12px; word-break: break-all;"></div>
         </div>
 
         <div class="grid">
@@ -203,7 +239,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan nomor terakhir</p>
-                <button onclick="fetchEndpoint('/api/last', this)">Get Last Numbers</button>
+                <button onclick="fetchEndpoint('/last', this)">Get Last Numbers</button>
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
 
@@ -214,7 +250,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Data lifetime numbers</p>
-                <button onclick="fetchEndpoint('/api/lifetime', this)">Get Lifetime</button>
+                <button onclick="fetchEndpoint('/lifetime', this)">Get Lifetime</button>
                 <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
             </div>
 
@@ -225,7 +261,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed terbaru</p>
-                <button onclick="fetchEndpoint('/api/feed', this)">Get Feed</button>
+                <button onclick="fetchEndpoint('/feed', this)">Get Feed</button>
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
 
@@ -245,12 +281,12 @@
                     <option value="twitter">Twitter</option>
                 </select>
                 <select id="request-country">
-                    <option value="us">United States</option>
-                    <option value="uk">United Kingdom</option>
-                    <option value="id">Indonesia</option>
-                    <option value="my">Malaysia</option>
-                    <option value="sg">Singapore</option>
-                    <option value="ph">Philippines</option>
+                    <option value="us">🇺🇸 United States</option>
+                    <option value="uk">🇬🇧 United Kingdom</option>
+                    <option value="id">🇮🇩 Indonesia</option>
+                    <option value="my">🇲🇾 Malaysia</option>
+                    <option value="sg">🇸🇬 Singapore</option>
+                    <option value="ph">🇵🇭 Philippines</option>
                 </select>
                 <button onclick="requestNumber()">Request Number</button>
                 <div class="response" id="request-response">Klik tombol untuk request</div>
@@ -262,7 +298,7 @@
                     🔐 Latest OTP
                     <span class="method get">GET</span>
                 </h3>
-                <input type="text" id="otp-number" placeholder="+1234567890" value="+1">
+                <input type="text" id="otp-number" placeholder="+1234567890">
                 <button onclick="getLatestOTP()">Get Latest OTP</button>
                 <div class="response" id="otp-response">Masukkan nomor dan klik tombol</div>
             </div>
@@ -274,7 +310,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar negara yang tersedia</p>
-                <button onclick="fetchEndpoint('/api/countries', this)">Get Countries</button>
+                <button onclick="fetchEndpoint('/countries', this)">Get Countries</button>
                 <div class="response" id="countries-response">Klik tombol untuk melihat</div>
             </div>
 
@@ -285,7 +321,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar layanan yang tersedia</p>
-                <button onclick="fetchEndpoint('/api/services', this)">Get Services</button>
+                <button onclick="fetchEndpoint('/services', this)">Get Services</button>
                 <div class="response" id="services-response">Klik tombol untuk melihat</div>
             </div>
 
@@ -296,7 +332,7 @@
                     <span class="method get">GET</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Nomor-nomor Anda</p>
-                <button onclick="fetchEndpoint('/api/my_numbers', this)">Get My Numbers</button>
+                <button onclick="fetchEndpoint('/my_numbers', this)">Get My Numbers</button>
                 <div class="response" id="mynumbers-response">Klik tombol untuk melihat</div>
             </div>
 
@@ -306,7 +342,7 @@
                     ♻️ Release Number
                     <span class="method post">POST</span>
                 </h3>
-                <input type="text" id="release-number" placeholder="+1234567890" value="+1">
+                <input type="text" id="release-number" placeholder="+1234567890">
                 <button onclick="releaseNumber()">Release Number</button>
                 <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
             </div>
@@ -314,58 +350,97 @@
     </div>
 
     <script>
+        const API_BASE = 'https://zelapioffciall.dpdns.org/api/v1/nokos';
+
+        function getApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                alert('Masukkan API Key terlebih dahulu!');
+                return null;
+            }
+            return key;
+        }
+
+        function getHeaders() {
+            const apiKey = getApiKey();
+            if (!apiKey) return null;
+            return {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
         async function testConnection() {
             const statusSpan = document.getElementById('test-status');
             const resultDiv = document.getElementById('test-result');
+            const apiKey = getApiKey();
             
-            statusSpan.innerHTML = '⏳ Testing...';
+            if (!apiKey) return;
+
+            statusSpan.innerHTML = '<span class="spinner"></span> Testing...';
             resultDiv.textContent = '';
-            
+            resultDiv.style.color = '#000';
+
             try {
-                const res = await fetch('/api/test');
-                const data = await res.json();
+                const res = await fetch(`${API_BASE}/countries`, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
                 
-                if (data.success) {
-                    statusSpan.innerHTML = '✅ <span class="status-ok">Connected!</span>';
-                    resultDiv.textContent = 'API merespon dengan baik!';
+                if (res.ok) {
+                    const data = await res.json();
+                    statusSpan.innerHTML = '✅ <span class="status-ok">Connected! API merespon dengan baik</span>';
+                    resultDiv.textContent = `Sukses! Response: ${JSON.stringify(data, null, 2)}`;
                     resultDiv.style.color = '#28a745';
                 } else {
-                    statusSpan.innerHTML = '❌ <span class="status-error">Failed!</span>';
-                    resultDiv.textContent = `Error: ${data.message} - Status: ${data.status || 'unknown'}`;
+                    const text = await res.text();
+                    statusSpan.innerHTML = '❌ <span class="status-error">Failed! API tidak merespon</span>';
+                    resultDiv.textContent = `Status: ${res.status}\nResponse: ${text}`;
                     resultDiv.style.color = '#dc3545';
-                    if (data.data) {
-                        resultDiv.textContent += `\nResponse: ${JSON.stringify(data.data)}`;
-                    }
                 }
             } catch (error) {
                 statusSpan.innerHTML = '❌ <span class="status-error">Error!</span>';
-                resultDiv.textContent = `Gagal koneksi: ${error.message}`;
+                resultDiv.textContent = `Error: ${error.message}`;
                 resultDiv.style.color = '#dc3545';
             }
         }
 
-        async function fetchEndpoint(url, button) {
+        async function fetchEndpoint(endpoint, button) {
             const responseDiv = button.parentElement.querySelector('.response');
+            const apiKey = getApiKey();
+            
+            if (!apiKey) return;
+
             responseDiv.className = 'response';
             responseDiv.textContent = 'Loading...';
-            button.classList.add('loading');
+            button.disabled = true;
+            button.textContent = 'Loading...';
 
             try {
-                const res = await fetch(url);
-                const data = await res.json();
+                const res = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
                 
-                if (res.ok && !data.error) {
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
+                
+                if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error ${res.status}: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.classList.remove('loading');
+                button.disabled = false;
+                button.textContent = button.textContent.replace('Loading...', '');
             }
         }
 
@@ -374,109 +449,147 @@
             const country = document.getElementById('request-country').value;
             const responseDiv = document.getElementById('request-response');
             const button = event.target;
+            const apiKey = getApiKey();
+
+            if (!apiKey) return;
 
             responseDiv.className = 'response';
             responseDiv.textContent = 'Loading...';
-            button.classList.add('loading');
+            button.disabled = true;
+            button.textContent = 'Loading...';
 
             try {
-                const res = await fetch('/api/request', {
+                const res = await fetch(`${API_BASE}/request`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getHeaders(),
                     body: JSON.stringify({ service, country })
                 });
-                const data = await res.json();
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
 
-                if (res.ok && !data.error) {
+                if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error ${res.status}: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.classList.remove('loading');
+                button.disabled = false;
+                button.textContent = 'Request Number';
             }
         }
 
         async function getLatestOTP() {
-            const number = document.getElementById('otp-number').value;
+            const number = document.getElementById('otp-number').value.trim();
             const responseDiv = document.getElementById('otp-response');
             const button = event.target;
+            const apiKey = getApiKey();
+
+            if (!apiKey) return;
 
             if (!number) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = 'Mohon masukkan nomor telepon';
+                responseDiv.textContent = '❌ Mohon masukkan nomor telepon';
                 return;
             }
 
             responseDiv.className = 'response';
             responseDiv.textContent = 'Loading...';
-            button.classList.add('loading');
+            button.disabled = true;
+            button.textContent = 'Loading...';
 
             try {
-                const res = await fetch(`/api/latest_otp?number=${encodeURIComponent(number)}`);
-                const data = await res.json();
+                const res = await fetch(`${API_BASE}/latest_otp?number=${encodeURIComponent(number)}`, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
 
-                if (res.ok && !data.error) {
+                if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error ${res.status}: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.classList.remove('loading');
+                button.disabled = false;
+                button.textContent = 'Get Latest OTP';
             }
         }
 
         async function releaseNumber() {
-            const number = document.getElementById('release-number').value;
+            const number = document.getElementById('release-number').value.trim();
             const responseDiv = document.getElementById('release-response');
             const button = event.target;
+            const apiKey = getApiKey();
+
+            if (!apiKey) return;
 
             if (!number) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = 'Mohon masukkan nomor telepon';
+                responseDiv.textContent = '❌ Mohon masukkan nomor telepon';
                 return;
             }
 
             responseDiv.className = 'response';
             responseDiv.textContent = 'Loading...';
-            button.classList.add('loading');
+            button.disabled = true;
+            button.textContent = 'Loading...';
 
             try {
-                const res = await fetch('/api/release', {
+                const res = await fetch(`${API_BASE}/release`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getHeaders(),
                     body: JSON.stringify({ number })
                 });
-                const data = await res.json();
+                
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = text;
+                }
 
-                if (res.ok && !data.error) {
+                if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error ${res.status}: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.classList.remove('loading');
+                button.disabled = false;
+                button.textContent = 'Release Number';
             }
         }
 
-        // Auto test connection saat halaman dimuat
+        // Auto test saat halaman dimuat
         window.onload = function() {
-            testConnection();
+            setTimeout(testConnection, 500);
         };
     </script>
 </body>
