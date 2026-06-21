@@ -65,11 +65,6 @@
             margin-top: 5px;
             font-size: 12px;
         }
-        .api-key-info .hint code {
-            background: #e8e8e8;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
         .api-url-info {
             background: #e8f5e9;
             padding: 12px 15px;
@@ -170,6 +165,10 @@
             background: #f8d7da;
             color: #721c24;
         }
+        .badge-status.available {
+            background: #cce5ff;
+            color: #004085;
+        }
         .card input,
         .card select {
             width: 100%;
@@ -178,6 +177,9 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
+        }
+        .card select option {
+            padding: 5px;
         }
         .card button {
             width: 100%;
@@ -202,13 +204,21 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        .card button.btn-check-stock {
+            background: #28a745;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .card button.btn-check-stock:hover {
+            background: #1e7e34;
+        }
         .response {
             margin-top: 15px;
             padding: 12px;
             background: #fff;
             border-radius: 8px;
             border: 1px solid #ddd;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             font-size: 13px;
             font-family: 'Courier New', monospace;
@@ -276,6 +286,47 @@
         .suggestion-box strong {
             color: #2e7d32;
         }
+        .stock-info {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 5px 0 10px 0;
+        }
+        .stock-tag {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .stock-tag.available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .stock-tag.empty {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .stock-tag.unknown {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-group button {
+            flex: 1;
+        }
+        .btn-group button:first-child {
+            flex: 2;
+        }
+        .combo-row {
+            display: flex;
+            gap: 10px;
+        }
+        .combo-row select {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -298,11 +349,12 @@
             <span id="statusMessage">Klik Test Connection untuk cek koneksi</span>
         </div>
 
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button onclick="testConnection()" style="background: #ffc107; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">🔌 Test Connection</button>
-            <span id="test-status" style="margin-left: 15px;"></span>
-            <div id="test-result" class="test-result"></div>
+            <button onclick="checkAllStock()" style="background: #17a2b8; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; color: white;">📊 Cek Semua Stok</button>
+            <span id="test-status" style="margin-left: 15px; display: flex; align-items: center;"></span>
         </div>
+        <div id="test-result" class="test-result"></div>
 
         <div class="grid">
             <!-- Card 1: Get Last -->
@@ -312,7 +364,6 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan daftar nomor terakhir</p>
                 <button onclick="fetchEndpoint('/last', this)">Get Last Numbers</button>
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -324,7 +375,6 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Data lifetime numbers</p>
                 <button onclick="fetchEndpoint('/lifetime', this)">Get Lifetime</button>
                 <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -336,7 +386,6 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed OTP terbaru</p>
                 <button onclick="fetchEndpoint('/feed', this)">Get Feed</button>
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -349,46 +398,53 @@
                     <span class="badge-status" id="request-badge">🔄 Cek Stok</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Minta nomor baru untuk service tertentu</p>
-                <div class="suggestion-box" id="request-suggestion">
-                    <strong>💡 Tips:</strong> Coba ganti service/country kalau stok habis
+                
+                <div class="stock-info" id="stock-info">
+                    <span class="stock-tag unknown">🔍 Klik "Cek Stok" dulu</span>
                 </div>
-                <select id="request-service">
-                    <option value="telegram">Telegram</option>
-                    <option value="whatsapp" selected>WhatsApp</option>
-                    <option value="gmail">Gmail</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="twitter">Twitter</option>
-                    <option value="snapchat">Snapchat</option>
-                    <option value="rednote">Rednote</option>
-                    <option value="tinder">Tinder</option>
-                    <option value="shopee">Shopee</option>
-                    <option value="google">Google</option>
-                    <option value="netflix">Netflix</option>
-                    <option value="grab">Grab</option>
-                    <option value="pinterest">Pinterest</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="telegram">Telegram</option>
-                </select>
-                <select id="request-country">
-                    <option value="us">🇺🇸 United States</option>
-                    <option value="uk">🇬🇧 United Kingdom</option>
-                    <option value="id" selected>🇮🇩 Indonesia</option>
-                    <option value="my">🇲🇾 Malaysia</option>
-                    <option value="sg">🇸🇬 Singapore</option>
-                    <option value="ph">🇵🇭 Philippines</option>
-                    <option value="ve">🇻🇪 Venezuela</option>
-                    <option value="zm">🇿🇲 Zambia</option>
-                    <option value="zw">🇿🇼 Zimbabwe</option>
-                    <option value="ng">🇳🇬 Nigeria</option>
-                    <option value="np">🇳🇵 Nepal</option>
-                    <option value="bi">🇧🇮 Burundi</option>
-                    <option value="sn">🇸🇳 Senegal</option>
-                    <option value="mr">🇲🇷 Mauritania</option>
-                    <option value="lb">🇱🇧 Lebanon</option>
-                </select>
-                <button onclick="requestNumber()">Request Number</button>
+
+                <div class="combo-row">
+                    <select id="request-service">
+                        <option value="telegram">Telegram</option>
+                        <option value="whatsapp" selected>WhatsApp</option>
+                        <option value="gmail">Gmail</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="snapchat">Snapchat</option>
+                        <option value="rednote">Rednote</option>
+                        <option value="tinder">Tinder</option>
+                        <option value="shopee">Shopee</option>
+                        <option value="google">Google</option>
+                        <option value="netflix">Netflix</option>
+                        <option value="grab">Grab</option>
+                        <option value="pinterest">Pinterest</option>
+                        <option value="huawei">Huawei</option>
+                    </select>
+                    <select id="request-country">
+                        <option value="us">🇺🇸 US</option>
+                        <option value="uk">🇬🇧 UK</option>
+                        <option value="id" selected>🇮🇩 Indonesia</option>
+                        <option value="my">🇲🇾 Malaysia</option>
+                        <option value="sg">🇸🇬 Singapore</option>
+                        <option value="ph">🇵🇭 Philippines</option>
+                        <option value="ve">🇻🇪 Venezuela</option>
+                        <option value="zm">🇿🇲 Zambia</option>
+                        <option value="zw">🇿🇼 Zimbabwe</option>
+                        <option value="ng">🇳🇬 Nigeria</option>
+                        <option value="np">🇳🇵 Nepal</option>
+                        <option value="bi">🇧🇮 Burundi</option>
+                        <option value="sn">🇸🇳 Senegal</option>
+                        <option value="mr">🇲🇷 Mauritania</option>
+                        <option value="lb">🇱🇧 Lebanon</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="requestNumber()">📞 Request Number</button>
+                    <button onclick="checkStock()" class="btn-check-stock">🔍 Cek Stok</button>
+                </div>
                 <div class="response" id="request-response">Pilih service & country, lalu klik tombol</div>
             </div>
 
@@ -421,6 +477,9 @@
 
     <script>
         const API_BASE = 'https://zelapioffciall.dpdns.org/api/v1/nokos';
+
+        // Daftar service yang diketahui
+        const SERVICE_LIST = ['telegram', 'whatsapp', 'gmail', 'facebook', 'instagram', 'tiktok', 'twitter', 'snapchat', 'rednote', 'tinder', 'shopee', 'google', 'netflix', 'grab', 'pinterest', 'huawei'];
 
         function getApiKey() {
             const key = document.getElementById('apiKeyInput').value.trim();
@@ -474,6 +533,173 @@
                 if (data.message) return data.message;
             }
             return null;
+        }
+
+        function updateStockTag(service, country, hasStock) {
+            const infoDiv = document.getElementById('stock-info');
+            let tagClass = 'unknown';
+            let text = '❓ Unknown';
+            
+            if (hasStock === true) {
+                tagClass = 'available';
+                text = '✅ Ada stok!';
+            } else if (hasStock === false) {
+                tagClass = 'empty';
+                text = '❌ Stok habis';
+            } else {
+                tagClass = 'unknown';
+                text = '🔍 Klik "Cek Stok"';
+            }
+            
+            infoDiv.innerHTML = `
+                <span class="stock-tag ${tagClass}">📦 ${service.toUpperCase()} - ${country.toUpperCase()}: ${text}</span>
+                <span style="font-size:11px; color:#666;">${hasStock === true ? 'Bisa request!' : hasStock === false ? 'Coba ganti service/country' : ''}</span>
+            `;
+        }
+
+        async function checkStock() {
+            const service = document.getElementById('request-service').value;
+            const country = document.getElementById('request-country').value;
+            const badge = document.getElementById('request-badge');
+            const responseDiv = document.getElementById('request-response');
+            const apiKey = getApiKey();
+            
+            if (!apiKey) return;
+
+            badge.textContent = '⏳ Loading...';
+            responseDiv.className = 'response info';
+            responseDiv.textContent = '⏳ Cek stok...';
+
+            try {
+                // Coba request dulu buat test stok
+                const res = await fetch(`${API_BASE}/request`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ service, country })
+                });
+                const text = await res.text();
+                let data;
+                try { data = JSON.parse(text); } catch (e) { data = text; }
+
+                if (res.ok) {
+                    // Ada stok! Tapi kita langsung release biar gak kepake
+                    if (data.number) {
+                        updateStockTag(service, country, true);
+                        badge.textContent = '✅ Ada Stok';
+                        badge.className = 'badge-status available';
+                        responseDiv.className = 'response success';
+                        responseDiv.textContent = `✅ Ada stok! Nomor ${data.number} tersedia.\n\n💡 Klik "Request Number" untuk ambil.`;
+                        
+                        // Auto release biar gak kepake
+                        try {
+                            await fetch(`${API_BASE}/release`, {
+                                method: 'POST',
+                                headers: getHeaders(),
+                                body: JSON.stringify({ number: data.number })
+                            });
+                        } catch(e) {}
+                    }
+                } else {
+                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
+                    if (errMsg.toLowerCase().includes('no available numbers') || errMsg.toLowerCase().includes('not available')) {
+                        updateStockTag(service, country, false);
+                        badge.textContent = '❌ Stok Habis';
+                        badge.className = 'badge-status empty';
+                        responseDiv.className = 'response warning';
+                        responseDiv.innerHTML = `❌ Stok habis untuk ${service} - ${country}\n\n💡 Coba ganti service atau country lain.`;
+                    } else {
+                        updateStockTag(service, country, null);
+                        badge.textContent = '❓ Unknown';
+                        badge.className = 'badge-status restricted';
+                        responseDiv.className = 'response error';
+                        responseDiv.textContent = `Error: ${errMsg}`;
+                    }
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+                badge.textContent = '❌ Error';
+                badge.className = 'badge-status empty';
+            }
+        }
+
+        async function checkAllStock() {
+            const statusSpan = document.getElementById('test-status');
+            const resultDiv = document.getElementById('test-result');
+            const apiKey = getApiKey();
+            
+            if (!apiKey) return;
+
+            statusSpan.innerHTML = '<span class="spinner"></span> Cek semua stok...';
+            resultDiv.innerHTML = '';
+            updateStatus('Sedang cek stok semua service...', 'info');
+
+            let results = [];
+            const countries = ['id', 'us', 'uk', 've', 'zm'];
+
+            for (const service of SERVICE_LIST.slice(0, 6)) { // Cek 6 service dulu biar cepat
+                for (const country of countries) {
+                    try {
+                        const res = await fetch(`${API_BASE}/request`, {
+                            method: 'POST',
+                            headers: getHeaders(),
+                            body: JSON.stringify({ service, country })
+                        });
+                        const text = await res.text();
+                        let data;
+                        try { data = JSON.parse(text); } catch (e) { data = text; }
+
+                        let hasStock = false;
+                        let errorMsg = '';
+                        
+                        if (res.ok && data.number) {
+                            hasStock = true;
+                            // Auto release
+                            try {
+                                await fetch(`${API_BASE}/release`, {
+                                    method: 'POST',
+                                    headers: getHeaders(),
+                                    body: JSON.stringify({ number: data.number })
+                                });
+                            } catch(e) {}
+                        } else {
+                            const err = parseError(data) || '';
+                            if (err.toLowerCase().includes('no available numbers')) {
+                                hasStock = false;
+                            } else {
+                                errorMsg = err;
+                            }
+                        }
+
+                        results.push({ service, country, hasStock, errorMsg });
+                    } catch(e) {
+                        results.push({ service, country, hasStock: null, errorMsg: e.message });
+                    }
+                }
+            }
+
+            // Tampilkan hasil
+            let html = '<div style="font-weight:bold; margin-bottom:10px;">📊 Hasil Cek Stok:</div><div style="display:flex; flex-wrap:wrap; gap:5px;">';
+            for (const r of results) {
+                let color = '#6c757d';
+                let label = '❓';
+                if (r.hasStock === true) { color = '#28a745'; label = '✅'; }
+                else if (r.hasStock === false) { color = '#dc3545'; label = '❌'; }
+                html += `<span style="background:${color}; color:white; padding:4px 10px; border-radius:15px; font-size:11px;">${label} ${r.service} - ${r.country.toUpperCase()}</span>`;
+            }
+            html += '</div>';
+            
+            // Highlight yang ada stok
+            const available = results.filter(r => r.hasStock === true);
+            if (available.length > 0) {
+                html += `<div style="margin-top:10px; color:#28a745; font-weight:bold;">✅ Ada stok di: ${available.map(r => r.service + '-' + r.country.toUpperCase()).join(', ')}</div>`;
+            } else {
+                html += `<div style="margin-top:10px; color:#dc3545;">❌ Semua stok habis. Coba lagi nanti atau cek service lain.</div>`;
+            }
+
+            resultDiv.innerHTML = html;
+            statusSpan.innerHTML = '✅ Selesai';
+            updateStatus('✅ Cek stok selesai! Lihat hasil di bawah.', 'success');
         }
 
         async function testConnection() {
@@ -602,26 +828,20 @@
                     responseDiv.textContent = '✅ ' + formatResponse(data);
                     badge.textContent = '✅ Berhasil';
                     badge.className = 'badge-status working';
+                    updateStockTag(service, country, true);
                 } else {
                     responseDiv.className = 'response error';
                     const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
                     
-                    // Deteksi error stok habis
                     if (errMsg.toLowerCase().includes('no available numbers') || errMsg.toLowerCase().includes('not available')) {
-                        responseDiv.innerHTML = `
-                            ❌ ${errMsg}
-                            
-                            💡 <strong>Stok nomor habis!</strong> Coba:
-                            • Ganti service (contoh: dari WhatsApp ke Telegram)
-                            • Ganti country (contoh: dari Indonesia ke US)
-                            • Tunggu beberapa menit lalu coba lagi
-                        `;
-                        badge.textContent = '⚠️ Stok Habis';
+                        responseDiv.innerHTML = `❌ ${errMsg}\n\n💡 <strong>Stok habis!</strong> Coba:\n• Ganti service (contoh: dari WhatsApp ke Telegram)\n• Ganti country (contoh: dari Indonesia ke US)\n• Tunggu beberapa menit lalu coba lagi\n• Klik "Cek Stok" dulu untuk cek ketersediaan`;
+                        badge.textContent = '❌ Stok Habis';
                         badge.className = 'badge-status empty';
+                        updateStockTag(service, country, false);
                     } else if (errMsg.toLowerCase().includes('unauthorized')) {
                         responseDiv.innerHTML = `❌ ${errMsg}\n\n💡 API Key tidak punya akses. Coba API Key lain.`;
                         badge.textContent = '🚫 Unauthorized';
-                        badge.className = 'badge-status error';
+                        badge.className = 'badge-status restricted';
                     } else {
                         responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
                         badge.textContent = '❌ Error';
