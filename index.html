@@ -38,11 +38,29 @@
             background: #f0f4ff;
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-left: 4px solid #667eea;
         }
         .api-key-info strong {
             color: #667eea;
+        }
+        .test-connection {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .test-connection button {
+            background: #ffc107;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .test-connection button:hover {
+            background: #e0a800;
         }
         .grid {
             display: grid;
@@ -142,6 +160,14 @@
             font-size: 11px;
             margin-left: 5px;
         }
+        .status-ok {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -160,6 +186,13 @@
         <div class="api-key-info">
             <strong>🔑 API Key:</strong> zelapi-4hwd4va
             <span class="badge">Active</span>
+        </div>
+
+        <div class="test-connection">
+            <strong>🔌 Test Koneksi API:</strong>
+            <button onclick="testConnection()">Test Connection</button>
+            <span id="test-status" style="margin-left: 10px;"></span>
+            <div id="test-result" style="margin-top: 10px; font-size: 12px;"></div>
         </div>
 
         <div class="grid">
@@ -281,6 +314,36 @@
     </div>
 
     <script>
+        async function testConnection() {
+            const statusSpan = document.getElementById('test-status');
+            const resultDiv = document.getElementById('test-result');
+            
+            statusSpan.innerHTML = '⏳ Testing...';
+            resultDiv.textContent = '';
+            
+            try {
+                const res = await fetch('/api/test');
+                const data = await res.json();
+                
+                if (data.success) {
+                    statusSpan.innerHTML = '✅ <span class="status-ok">Connected!</span>';
+                    resultDiv.textContent = 'API merespon dengan baik!';
+                    resultDiv.style.color = '#28a745';
+                } else {
+                    statusSpan.innerHTML = '❌ <span class="status-error">Failed!</span>';
+                    resultDiv.textContent = `Error: ${data.message} - Status: ${data.status || 'unknown'}`;
+                    resultDiv.style.color = '#dc3545';
+                    if (data.data) {
+                        resultDiv.textContent += `\nResponse: ${JSON.stringify(data.data)}`;
+                    }
+                }
+            } catch (error) {
+                statusSpan.innerHTML = '❌ <span class="status-error">Error!</span>';
+                resultDiv.textContent = `Gagal koneksi: ${error.message}`;
+                resultDiv.style.color = '#dc3545';
+            }
+        }
+
         async function fetchEndpoint(url, button) {
             const responseDiv = button.parentElement.querySelector('.response');
             responseDiv.className = 'response';
@@ -291,12 +354,12 @@
                 const res = await fetch(url);
                 const data = await res.json();
                 
-                if (res.ok) {
+                if (res.ok && !data.error) {
                     responseDiv.className = 'response success';
                     responseDiv.textContent = JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -324,12 +387,12 @@
                 });
                 const data = await res.json();
 
-                if (res.ok) {
+                if (res.ok && !data.error) {
                     responseDiv.className = 'response success';
                     responseDiv.textContent = JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -358,12 +421,12 @@
                 const res = await fetch(`/api/latest_otp?number=${encodeURIComponent(number)}`);
                 const data = await res.json();
 
-                if (res.ok) {
+                if (res.ok && !data.error) {
                     responseDiv.className = 'response success';
                     responseDiv.textContent = JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -396,12 +459,12 @@
                 });
                 const data = await res.json();
 
-                if (res.ok) {
+                if (res.ok && !data.error) {
                     responseDiv.className = 'response success';
                     responseDiv.textContent = JSON.stringify(data, null, 2);
                 } else {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                    responseDiv.textContent = `Error: ${data.message || JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -410,6 +473,11 @@
                 button.classList.remove('loading');
             }
         }
+
+        // Auto test connection saat halaman dimuat
+        window.onload = function() {
+            testConnection();
+        };
     </script>
 </body>
 </html>
