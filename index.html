@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nokos API Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .api-key-info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        .api-key-info strong {
+            color: #667eea;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 .method {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+        .method.post {
+            background: #007bff;
+            color: white;
+        }
+        .card input, .card select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .card button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .card button:hover {
+            background: #5a67d8;
+        }
+        .card button:active {
+            transform: scale(0.98);
+        }
+        .response {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .response.success {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+        .response.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Nokos API Web</h1>
+        <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
+        
+        <div class="api-key-info">
+            <strong>🔑 API Key:</strong> zelapi-4hwd4va
+            <span class="badge">Active</span>
+        </div>
+
+        <div class="grid">
+            <!-- Card 1: Get Last -->
+            <div class="card">
+                <h3>
+                    📊 Last Numbers
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan nomor terakhir</p>
+                <button onclick="fetchEndpoint('/api/last', this)">Get Last Numbers</button>
+                <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
+            </div>
+
+            <!-- Card 2: Lifetime -->
+            <div class="card">
+                <h3>
+                    ⏳ Lifetime
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Data lifetime numbers</p>
+                <button onclick="fetchEndpoint('/api/lifetime', this)">Get Lifetime</button>
+                <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
+            </div>
+
+            <!-- Card 3: Feed -->
+            <div class="card">
+                <h3>
+                    📡 Feed
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed terbaru</p>
+                <button onclick="fetchEndpoint('/api/feed', this)">Get Feed</button>
+                <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
+            </div>
+
+            <!-- Card 4: Request Number -->
+            <div class="card">
+                <h3>
+                    📞 Request Number
+                    <span class="method post">POST</span>
+                </h3>
+                <select id="request-service">
+                    <option value="telegram">Telegram</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="gmail">Gmail</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="twitter">Twitter</option>
+                </select>
+                <select id="request-country">
+                    <option value="us">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="id">Indonesia</option>
+                    <option value="my">Malaysia</option>
+                    <option value="sg">Singapore</option>
+                    <option value="ph">Philippines</option>
+                </select>
+                <button onclick="requestNumber()">Request Number</button>
+                <div class="response" id="request-response">Klik tombol untuk request</div>
+            </div>
+
+            <!-- Card 5: Latest OTP -->
+            <div class="card">
+                <h3>
+                    🔐 Latest OTP
+                    <span class="method get">GET</span>
+                </h3>
+                <input type="text" id="otp-number" placeholder="+1234567890" value="+1">
+                <button onclick="getLatestOTP()">Get Latest OTP</button>
+                <div class="response" id="otp-response">Masukkan nomor dan klik tombol</div>
+            </div>
+
+            <!-- Card 6: Countries -->
+            <div class="card">
+                <h3>
+                    🌍 Countries
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar negara yang tersedia</p>
+                <button onclick="fetchEndpoint('/api/countries', this)">Get Countries</button>
+                <div class="response" id="countries-response">Klik tombol untuk melihat</div>
+            </div>
+
+            <!-- Card 7: Services -->
+            <div class="card">
+                <h3>
+                    🛠 Services
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Daftar layanan yang tersedia</p>
+                <button onclick="fetchEndpoint('/api/services', this)">Get Services</button>
+                <div class="response" id="services-response">Klik tombol untuk melihat</div>
+            </div>
+
+            <!-- Card 8: My Numbers -->
+            <div class="card">
+                <h3>
+                    📱 My Numbers
+                    <span class="method get">GET</span>
+                </h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Nomor-nomor Anda</p>
+                <button onclick="fetchEndpoint('/api/my_numbers', this)">Get My Numbers</button>
+                <div class="response" id="mynumbers-response">Klik tombol untuk melihat</div>
+            </div>
+
+            <!-- Card 9: Release Number -->
+            <div class="card">
+                <h3>
+                    ♻️ Release Number
+                    <span class="method post">POST</span>
+                </h3>
+                <input type="text" id="release-number" placeholder="+1234567890" value="+1">
+                <button onclick="releaseNumber()">Release Number</button>
+                <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchEndpoint(url, button) {
+            const responseDiv = button.parentElement.querySelector('.response');
+            responseDiv.className = 'response';
+            responseDiv.textContent = 'Loading...';
+            button.classList.add('loading');
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (res.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+
+        async function requestNumber() {
+            const service = document.getElementById('request-service').value;
+            const country = document.getElementById('request-country').value;
+            const responseDiv = document.getElementById('request-response');
+            const button = event.target;
+
+            responseDiv.className = 'response';
+            responseDiv.textContent = 'Loading...';
+            button.classList.add('loading');
+
+            try {
+                const res = await fetch('/api/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ service, country })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+
+        async function getLatestOTP() {
+            const number = document.getElementById('otp-number').value;
+            const responseDiv = document.getElementById('otp-response');
+            const button = event.target;
+
+            if (!number) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Mohon masukkan nomor telepon';
+                return;
+            }
+
+            responseDiv.className = 'response';
+            responseDiv.textContent = 'Loading...';
+            button.classList.add('loading');
+
+            try {
+                const res = await fetch(`/api/latest_otp?number=${encodeURIComponent(number)}`);
+                const data = await res.json();
+
+                if (res.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+
+        async function releaseNumber() {
+            const number = document.getElementById('release-number').value;
+            const responseDiv = document.getElementById('release-response');
+            const button = event.target;
+
+            if (!number) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Mohon masukkan nomor telepon';
+                return;
+            }
+
+            responseDiv.className = 'response';
+            responseDiv.textContent = 'Loading...';
+            button.classList.add('loading');
+
+            try {
+                const res = await fetch('/api/release', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `Error: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.classList.remove('loading');
+            }
+        }
+    </script>
+</body>
+</html>
