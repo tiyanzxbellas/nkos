@@ -88,7 +88,7 @@
             padding: 12px 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid;
         }
         .status-box.success {
             background: #d4edda;
@@ -101,6 +101,10 @@
         .status-box.error {
             background: #f8d7da;
             border-color: #dc3545;
+        }
+        .status-box.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
         }
         .status-box strong {
             display: block;
@@ -125,10 +129,6 @@
         }
         .card.working {
             border-color: #28a745;
-        }
-        .card.restricted {
-            border-color: #ffc107;
-            opacity: 0.8;
         }
         .card h3 {
             color: #333;
@@ -166,6 +166,10 @@
             background: #fff3cd;
             color: #856404;
         }
+        .badge-status.empty {
+            background: #f8d7da;
+            color: #721c24;
+        }
         .card input,
         .card select {
             width: 100%;
@@ -198,12 +202,6 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
-        .card.restricted button {
-            background: #6c757d;
-        }
-        .card.restricted button:hover {
-            background: #5a6268;
-        }
         .response {
             margin-top: 15px;
             padding: 12px;
@@ -229,6 +227,10 @@
             border-color: #17a2b8;
             background: #f0f9ff;
         }
+        .response.warning {
+            border-color: #ffc107;
+            background: #fff8e1;
+        }
         .spinner {
             display: inline-block;
             width: 16px;
@@ -240,33 +242,16 @@
             margin-right: 8px;
         }
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            h1 {
-                font-size: 2em;
-            }
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2em; }
         }
-        .status-ok {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .status-error {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .status-warning {
-            color: #856404;
-            font-weight: bold;
-        }
+        .status-ok { color: #28a745; font-weight: bold; }
+        .status-error { color: #dc3545; font-weight: bold; }
+        .status-warning { color: #856404; font-weight: bold; }
         .test-result {
             margin-top: 10px;
             font-size: 12px;
@@ -279,6 +264,17 @@
             overflow-x: auto;
             max-height: 150px;
             font-size: 11px;
+        }
+        .suggestion-box {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            border-left: 3px solid #4caf50;
+        }
+        .suggestion-box strong {
+            color: #2e7d32;
         }
     </style>
 </head>
@@ -297,9 +293,9 @@
             <span class="hint">Format: <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)</span>
         </div>
 
-        <div class="status-box warning" id="statusBox">
-            <strong>ℹ️ Status API Key:</strong>
-            <span id="statusMessage">Test koneksi untuk cek status...</span>
+        <div class="status-box info" id="statusBox">
+            <strong>ℹ️ Status:</strong>
+            <span id="statusMessage">Klik Test Connection untuk cek koneksi</span>
         </div>
 
         <div style="margin-bottom: 20px;">
@@ -309,7 +305,7 @@
         </div>
 
         <div class="grid">
-            <!-- Card 1: Get Last - WORKING -->
+            <!-- Card 1: Get Last -->
             <div class="card working">
                 <h3>
                     📊 Last Numbers
@@ -321,7 +317,7 @@
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 2: Lifetime - WORKING -->
+            <!-- Card 2: Lifetime -->
             <div class="card working">
                 <h3>
                     ⏳ Lifetime
@@ -333,7 +329,7 @@
                 <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 3: Feed - WORKING -->
+            <!-- Card 3: Feed -->
             <div class="card working">
                 <h3>
                     📡 Feed
@@ -345,36 +341,58 @@
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 4: Request Number - RESTRICTED -->
-            <div class="card restricted">
+            <!-- Card 4: Request Number -->
+            <div class="card">
                 <h3>
                     📞 Request Number
                     <span class="method post">POST</span>
-                    <span class="badge-status restricted">⚠️ Restricted</span>
+                    <span class="badge-status" id="request-badge">🔄 Cek Stok</span>
                 </h3>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">⚠️ API Key ini tidak punya akses ke endpoint ini</p>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Minta nomor baru untuk service tertentu</p>
+                <div class="suggestion-box" id="request-suggestion">
+                    <strong>💡 Tips:</strong> Coba ganti service/country kalau stok habis
+                </div>
                 <select id="request-service">
                     <option value="telegram">Telegram</option>
-                    <option value="whatsapp">WhatsApp</option>
+                    <option value="whatsapp" selected>WhatsApp</option>
                     <option value="gmail">Gmail</option>
                     <option value="facebook">Facebook</option>
                     <option value="instagram">Instagram</option>
                     <option value="tiktok">TikTok</option>
                     <option value="twitter">Twitter</option>
+                    <option value="snapchat">Snapchat</option>
+                    <option value="rednote">Rednote</option>
+                    <option value="tinder">Tinder</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="google">Google</option>
+                    <option value="netflix">Netflix</option>
+                    <option value="grab">Grab</option>
+                    <option value="pinterest">Pinterest</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="telegram">Telegram</option>
                 </select>
                 <select id="request-country">
                     <option value="us">🇺🇸 United States</option>
                     <option value="uk">🇬🇧 United Kingdom</option>
-                    <option value="id">🇮🇩 Indonesia</option>
+                    <option value="id" selected>🇮🇩 Indonesia</option>
                     <option value="my">🇲🇾 Malaysia</option>
                     <option value="sg">🇸🇬 Singapore</option>
                     <option value="ph">🇵🇭 Philippines</option>
+                    <option value="ve">🇻🇪 Venezuela</option>
+                    <option value="zm">🇿🇲 Zambia</option>
+                    <option value="zw">🇿🇼 Zimbabwe</option>
+                    <option value="ng">🇳🇬 Nigeria</option>
+                    <option value="np">🇳🇵 Nepal</option>
+                    <option value="bi">🇧🇮 Burundi</option>
+                    <option value="sn">🇸🇳 Senegal</option>
+                    <option value="mr">🇲🇷 Mauritania</option>
+                    <option value="lb">🇱🇧 Lebanon</option>
                 </select>
                 <button onclick="requestNumber()">Request Number</button>
-                <div class="response" id="request-response">⚠️ Butuh API Key dengan akses write</div>
+                <div class="response" id="request-response">Pilih service & country, lalu klik tombol</div>
             </div>
 
-            <!-- Card 5: Latest OTP - WORKING -->
+            <!-- Card 5: Latest OTP -->
             <div class="card working">
                 <h3>
                     🔐 Latest OTP
@@ -386,17 +404,17 @@
                 <div class="response" id="otp-response">Masukkan nomor dan klik tombol</div>
             </div>
 
-            <!-- Card 6: Release Number - RESTRICTED -->
-            <div class="card restricted">
+            <!-- Card 6: Release Number -->
+            <div class="card">
                 <h3>
                     ♻️ Release Number
                     <span class="method post">POST</span>
-                    <span class="badge-status restricted">⚠️ Restricted</span>
+                    <span class="badge-status" id="release-badge">🔄 Cek</span>
                 </h3>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">⚠️ API Key ini tidak punya akses ke endpoint ini</p>
+                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Lepas nomor yang sudah tidak dipakai</p>
                 <input type="text" id="release-number" placeholder="+1234567890">
                 <button onclick="releaseNumber()">Release Number</button>
-                <div class="response" id="release-response">⚠️ Butuh API Key dengan akses write</div>
+                <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
             </div>
         </div>
     </div>
@@ -432,11 +450,7 @@
 
         function formatResponse(data) {
             if (typeof data === 'string') {
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    return data;
-                }
+                try { data = JSON.parse(data); } catch (e) { return data; }
             }
             return JSON.stringify(data, null, 2);
         }
@@ -448,6 +462,20 @@
             msg.textContent = message;
         }
 
+        function parseError(data) {
+            if (data && typeof data === 'object') {
+                if (data.error) {
+                    const err = data.error;
+                    if (typeof err === 'string') return err;
+                    if (err.message) return err.message;
+                    if (err.type) return err.type + ': ' + (err.message || '');
+                    return JSON.stringify(err);
+                }
+                if (data.message) return data.message;
+            }
+            return null;
+        }
+
         async function testConnection() {
             const statusSpan = document.getElementById('test-status');
             const resultDiv = document.getElementById('test-result');
@@ -457,10 +485,9 @@
 
             statusSpan.innerHTML = '<span class="spinner"></span> Testing...';
             resultDiv.innerHTML = '';
-            updateStatus('Sedang test koneksi...', 'warning');
+            updateStatus('Sedang test koneksi...', 'info');
 
             try {
-                // Test endpoint yang paling mungkin jalan
                 const res = await fetch(`${API_BASE}/last`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
@@ -468,25 +495,20 @@
                 if (res.ok) {
                     const data = await res.json();
                     statusSpan.innerHTML = '✅ <span class="status-ok">Connected!</span>';
-                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                    updateStatus('✅ API Key valid! Endpoint GET bisa diakses. Endpoint POST (Request/Release) mungkin restricted.', 'success');
+                    resultDiv.innerHTML = `<pre>✅ API merespon! Data: ${JSON.stringify(data, null, 2)}</pre>`;
+                    updateStatus('✅ API Key valid!', 'success');
                 } else {
                     const text = await res.text();
                     try {
                         const jsonData = JSON.parse(text);
-                        if (jsonData.error) {
-                            statusSpan.innerHTML = `❌ <span class="status-error">Error: ${jsonData.error.message || 'Unknown'}</span>`;
-                            resultDiv.innerHTML = `<pre>${JSON.stringify(jsonData, null, 2)}</pre>`;
-                            if (jsonData.error.message && jsonData.error.message.includes('Unauthorized')) {
-                                updateStatus('❌ API Key tidak valid atau tidak memiliki akses!', 'error');
-                            } else {
-                                updateStatus('⚠️ API Key mungkin hanya read-only (GET) tanpa akses POST.', 'warning');
-                            }
-                        }
+                        const errMsg = parseError(jsonData) || JSON.stringify(jsonData);
+                        statusSpan.innerHTML = `❌ <span class="status-error">Error</span>`;
+                        resultDiv.innerHTML = `<pre>❌ ${errMsg}</pre>`;
+                        updateStatus('⚠️ ' + errMsg, 'warning');
                     } catch (e) {
                         statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
                         resultDiv.innerHTML = `<pre>${text.substring(0, 500)}</pre>`;
-                        updateStatus('⚠️ API merespon tapi tidak sesuai format yang diharapkan.', 'warning');
+                        updateStatus('⚠️ API merespon tidak sesuai format', 'warning');
                     }
                 }
             } catch (error) {
@@ -528,13 +550,8 @@
                     responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
-                    let errorMsg = `Error ${res.status}`;
-                    if (data && typeof data === 'object') {
-                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        else if (data.message) errorMsg += `: ${data.message}`;
-                        else errorMsg += `: ${JSON.stringify(data)}`;
-                    } else { errorMsg += `: ${data}`; }
-                    responseDiv.textContent = errorMsg;
+                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
+                    responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -549,14 +566,16 @@
             const service = document.getElementById('request-service').value;
             const country = document.getElementById('request-country').value;
             const responseDiv = document.getElementById('request-response');
+            const badge = document.getElementById('request-badge');
             const button = event.target;
             const apiKey = getApiKey();
             if (!apiKey) return;
 
             responseDiv.className = 'response';
-            responseDiv.textContent = 'Loading...';
+            responseDiv.textContent = '⏳ Loading...';
             button.disabled = true;
             button.textContent = 'Loading...';
+            badge.textContent = '⏳ Loading...';
 
             try {
                 const res = await fetch(`${API_BASE}/request`, {
@@ -571,6 +590,7 @@
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = 'Request Number';
+                    badge.textContent = '⚠️ Error';
                     return;
                 }
 
@@ -579,20 +599,40 @@
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = formatResponse(data);
+                    responseDiv.textContent = '✅ ' + formatResponse(data);
+                    badge.textContent = '✅ Berhasil';
+                    badge.className = 'badge-status working';
                 } else {
                     responseDiv.className = 'response error';
-                    let errorMsg = `Error ${res.status}`;
-                    if (data && typeof data === 'object') {
-                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        else if (data.message) errorMsg += `: ${data.message}`;
-                        else errorMsg += `: ${JSON.stringify(data)}`;
-                    } else { errorMsg += `: ${data}`; }
-                    responseDiv.textContent = errorMsg + '\n\n💡 Tips: API Key ini mungkin hanya read-only. Coba gunakan API Key dengan akses write.';
+                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
+                    
+                    // Deteksi error stok habis
+                    if (errMsg.toLowerCase().includes('no available numbers') || errMsg.toLowerCase().includes('not available')) {
+                        responseDiv.innerHTML = `
+                            ❌ ${errMsg}
+                            
+                            💡 <strong>Stok nomor habis!</strong> Coba:
+                            • Ganti service (contoh: dari WhatsApp ke Telegram)
+                            • Ganti country (contoh: dari Indonesia ke US)
+                            • Tunggu beberapa menit lalu coba lagi
+                        `;
+                        badge.textContent = '⚠️ Stok Habis';
+                        badge.className = 'badge-status empty';
+                    } else if (errMsg.toLowerCase().includes('unauthorized')) {
+                        responseDiv.innerHTML = `❌ ${errMsg}\n\n💡 API Key tidak punya akses. Coba API Key lain.`;
+                        badge.textContent = '🚫 Unauthorized';
+                        badge.className = 'badge-status error';
+                    } else {
+                        responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
+                        badge.textContent = '❌ Error';
+                        badge.className = 'badge-status empty';
+                    }
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
+                badge.textContent = '❌ Error';
+                badge.className = 'badge-status empty';
             } finally {
                 button.disabled = false;
                 button.textContent = 'Request Number';
@@ -639,13 +679,8 @@
                     responseDiv.textContent = formatResponse(data);
                 } else {
                     responseDiv.className = 'response error';
-                    let errorMsg = `Error ${res.status}`;
-                    if (data && typeof data === 'object') {
-                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        else if (data.message) errorMsg += `: ${data.message}`;
-                        else errorMsg += `: ${JSON.stringify(data)}`;
-                    } else { errorMsg += `: ${data}`; }
-                    responseDiv.textContent = errorMsg;
+                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
+                    responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -659,6 +694,7 @@
         async function releaseNumber() {
             const number = document.getElementById('release-number').value.trim();
             const responseDiv = document.getElementById('release-response');
+            const badge = document.getElementById('release-badge');
             const button = event.target;
             const apiKey = getApiKey();
             if (!apiKey) return;
@@ -673,6 +709,7 @@
             responseDiv.textContent = 'Loading...';
             button.disabled = true;
             button.textContent = 'Loading...';
+            badge.textContent = '⏳ Loading...';
 
             try {
                 const res = await fetch(`${API_BASE}/release`, {
@@ -687,6 +724,7 @@
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = 'Release Number';
+                    badge.textContent = '⚠️ Error';
                     return;
                 }
 
@@ -695,20 +733,21 @@
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
-                    responseDiv.textContent = formatResponse(data);
+                    responseDiv.textContent = '✅ ' + formatResponse(data);
+                    badge.textContent = '✅ Berhasil';
+                    badge.className = 'badge-status working';
                 } else {
                     responseDiv.className = 'response error';
-                    let errorMsg = `Error ${res.status}`;
-                    if (data && typeof data === 'object') {
-                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        else if (data.message) errorMsg += `: ${data.message}`;
-                        else errorMsg += `: ${JSON.stringify(data)}`;
-                    } else { errorMsg += `: ${data}`; }
-                    responseDiv.textContent = errorMsg + '\n\n💡 Tips: API Key ini mungkin hanya read-only. Coba gunakan API Key dengan akses write.';
+                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
+                    responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
+                    badge.textContent = '❌ Error';
+                    badge.className = 'badge-status empty';
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
+                badge.textContent = '❌ Error';
+                badge.className = 'badge-status empty';
             } finally {
                 button.disabled = false;
                 button.textContent = 'Release Number';
