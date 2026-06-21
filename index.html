@@ -59,6 +59,19 @@
             outline: none;
             border-color: #667eea;
         }
+        .api-url-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .api-url-info code {
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
         .test-connection {
             background: #fff3cd;
             padding: 15px;
@@ -211,12 +224,31 @@
                 font-size: 2em;
             }
         }
+        .info-box {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-left: 4px solid #2196f3;
+        }
+        .info-box strong {
+            color: #1976d2;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📱 Nokos API Web</h1>
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
+        
+        <div class="info-box">
+            <strong>ℹ️ Catatan:</strong> Pastikan API Key Anda valid. Jika endpoint tidak ditemukan (404), berarti API server mungkin berbeda atau API Key tidak terdaftar.
+        </div>
+        
+        <div class="api-url-info">
+            <strong>🌐 API Base URL:</strong> <code>https://zelapioffciall.dpdns.org/api/v1/nokos</code>
+        </div>
         
         <div class="api-key-info">
             <label>🔑 API Key:</label>
@@ -393,8 +425,13 @@
                     resultDiv.style.color = '#28a745';
                 } else {
                     const text = await res.text();
-                    statusSpan.innerHTML = '❌ <span class="status-error">Failed! API tidak merespon</span>';
-                    resultDiv.textContent = `Status: ${res.status}\nResponse: ${text}`;
+                    statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}!</span>`;
+                    // Cek apakah response HTML (404 page)
+                    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                        resultDiv.textContent = `⚠️ Endpoint tidak ditemukan (404). Pastikan URL API benar dan API Key valid.\n\nResponse: ${text.substring(0, 200)}...`;
+                    } else {
+                        resultDiv.textContent = `Status: ${res.status}\nResponse: ${text}`;
+                    }
                     resultDiv.style.color = '#dc3545';
                 }
             } catch (error) {
@@ -421,6 +458,16 @@
                 });
                 
                 const text = await res.text();
+                
+                // Cek apakah response HTML (404)
+                if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404). API Key mungkin tidak valid atau endpoint tidak tersedia.\n\nResponse: ${text.substring(0, 300)}...`;
+                    button.disabled = false;
+                    button.textContent = button.textContent.replace('Loading...', '');
+                    return;
+                }
+                
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -466,6 +513,15 @@
                 });
                 
                 const text = await res.text();
+                
+                if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404). API Key mungkin tidak valid.\n\nResponse: ${text.substring(0, 300)}...`;
+                    button.disabled = false;
+                    button.textContent = 'Request Number';
+                    return;
+                }
+                
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -514,6 +570,15 @@
                 });
                 
                 const text = await res.text();
+                
+                if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    button.disabled = false;
+                    button.textContent = 'Get Latest OTP';
+                    return;
+                }
+                
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -564,6 +629,15 @@
                 });
                 
                 const text = await res.text();
+                
+                if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    button.disabled = false;
+                    button.textContent = 'Release Number';
+                    return;
+                }
+                
                 let data;
                 try {
                     data = JSON.parse(text);
