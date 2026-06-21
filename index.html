@@ -26,19 +26,19 @@
         }
         h1 {
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-size: 2.5em;
         }
         .subtitle {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 1.1em;
         }
         .api-key-info {
             background: #f0f4ff;
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #667eea;
         }
         .api-key-info label {
@@ -72,9 +72,9 @@
         }
         .api-url-info {
             background: #e8f5e9;
-            padding: 15px;
+            padding: 12px 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #4caf50;
         }
         .api-url-info code {
@@ -84,24 +84,27 @@
             font-size: 13px;
             word-break: break-all;
         }
-        .test-connection {
-            background: #fff3cd;
-            padding: 15px;
+        .status-box {
+            padding: 12px 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #ffc107;
         }
-        .test-connection button {
-            background: #ffc107;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 10px;
+        .status-box.success {
+            background: #d4edda;
+            border-color: #28a745;
         }
-        .test-connection button:hover {
-            background: #e0a800;
+        .status-box.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        .status-box.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .status-box strong {
+            display: block;
+            margin-bottom: 5px;
         }
         .grid {
             display: grid;
@@ -114,10 +117,18 @@
             border-radius: 15px;
             padding: 20px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
         }
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .card.working {
+            border-color: #28a745;
+        }
+        .card.restricted {
+            border-color: #ffc107;
+            opacity: 0.8;
         }
         .card h3 {
             color: #333;
@@ -140,6 +151,20 @@
         .method.post {
             background: #007bff;
             color: white;
+        }
+        .card .badge-status {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-status.working {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-status.restricted {
+            background: #fff3cd;
+            color: #856404;
         }
         .card input,
         .card select {
@@ -173,6 +198,12 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        .card.restricted button {
+            background: #6c757d;
+        }
+        .card.restricted button:hover {
+            background: #5a6268;
+        }
         .response {
             margin-top: 15px;
             padding: 12px;
@@ -197,23 +228,6 @@
         .response.info {
             border-color: #17a2b8;
             background: #f0f9ff;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            background: #667eea;
-            color: white;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-left: 5px;
-        }
-        .status-ok {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .status-error {
-            color: #dc3545;
-            font-weight: bold;
         }
         .spinner {
             display: inline-block;
@@ -241,57 +255,30 @@
                 font-size: 2em;
             }
         }
-        .info-box {
-            background: #e3f2fd;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            border-left: 4px solid #2196f3;
+        .status-ok {
+            color: #28a745;
+            font-weight: bold;
         }
-        .info-box strong {
-            color: #1976d2;
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
         }
-        .warning-box {
-            background: #fff3cd;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            border-left: 4px solid #ffc107;
-        }
-        .warning-box strong {
+        .status-warning {
             color: #856404;
+            font-weight: bold;
         }
-        .success-box {
-            background: #d4edda;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            border-left: 4px solid #28a745;
+        .test-result {
+            margin-top: 10px;
+            font-size: 12px;
+            word-break: break-all;
         }
-        .success-box strong {
-            color: #155724;
-        }
-        .format-example {
-            background: #2d2d2d;
-            color: #f8f8f8;
+        .test-result pre {
+            background: #f8f9fa;
             padding: 10px;
             border-radius: 6px;
-            font-family: monospace;
-            font-size: 13px;
-            margin-top: 5px;
             overflow-x: auto;
-        }
-        .format-example .key {
-            color: #ff79c6;
-        }
-        .format-example .value {
-            color: #f1fa8c;
-        }
-        .format-example .string {
-            color: #50fa7b;
+            max-height: 150px;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -299,12 +286,6 @@
     <div class="container">
         <h1>📱 Nokos API Web</h1>
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
-
-        <div class="success-box">
-            <strong>✅ Format API Key:</strong> <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)
-            <br>
-            <small>Authorization: Bearer zelapi-hazelganteng</small>
-        </div>
 
         <div class="api-url-info">
             <strong>🌐 API Base URL:</strong> <code>https://zelapioffciall.dpdns.org/api/v1/nokos</code>
@@ -316,56 +297,62 @@
             <span class="hint">Format: <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)</span>
         </div>
 
-        <div class="test-connection">
-            <strong>🔌 Test Koneksi:</strong>
-            <button onclick="testConnection()">Test Connection</button>
-            <span id="test-status" style="margin-left: 10px;"></span>
-            <div id="test-result" style="margin-top: 10px; font-size: 12px; word-break: break-all;"></div>
+        <div class="status-box warning" id="statusBox">
+            <strong>ℹ️ Status API Key:</strong>
+            <span id="statusMessage">Test koneksi untuk cek status...</span>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button onclick="testConnection()" style="background: #ffc107; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">🔌 Test Connection</button>
+            <span id="test-status" style="margin-left: 15px;"></span>
+            <div id="test-result" class="test-result"></div>
         </div>
 
         <div class="grid">
-            <!-- Card 1: Get Last -->
-            <div class="card">
+            <!-- Card 1: Get Last - WORKING -->
+            <div class="card working">
                 <h3>
                     📊 Last Numbers
                     <span class="method get">GET</span>
+                    <span class="badge-status working">✅ OK</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Mendapatkan daftar nomor terakhir</p>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: [[service, number, otp, time, country]]</p>
                 <button onclick="fetchEndpoint('/last', this)">Get Last Numbers</button>
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 2: Lifetime -->
-            <div class="card">
+            <!-- Card 2: Lifetime - WORKING -->
+            <div class="card working">
                 <h3>
                     ⏳ Lifetime
                     <span class="method get">GET</span>
+                    <span class="badge-status working">✅ OK</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Data lifetime numbers</p>
                 <button onclick="fetchEndpoint('/lifetime', this)">Get Lifetime</button>
                 <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 3: Feed -->
-            <div class="card">
+            <!-- Card 3: Feed - WORKING -->
+            <div class="card working">
                 <h3>
                     📡 Feed
                     <span class="method get">GET</span>
+                    <span class="badge-status working">✅ OK</span>
                 </h3>
                 <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Feed OTP terbaru</p>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: [{number, service, otp, time}]</p>
                 <button onclick="fetchEndpoint('/feed', this)">Get Feed</button>
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
 
-            <!-- Card 4: Request Number -->
-            <div class="card">
+            <!-- Card 4: Request Number - RESTRICTED -->
+            <div class="card restricted">
                 <h3>
                     📞 Request Number
                     <span class="method post">POST</span>
+                    <span class="badge-status restricted">⚠️ Restricted</span>
                 </h3>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {success, number, id}</p>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">⚠️ API Key ini tidak punya akses ke endpoint ini</p>
                 <select id="request-service">
                     <option value="telegram">Telegram</option>
                     <option value="whatsapp">WhatsApp</option>
@@ -384,31 +371,32 @@
                     <option value="ph">🇵🇭 Philippines</option>
                 </select>
                 <button onclick="requestNumber()">Request Number</button>
-                <div class="response" id="request-response">Klik tombol untuk request</div>
+                <div class="response" id="request-response">⚠️ Butuh API Key dengan akses write</div>
             </div>
 
-            <!-- Card 5: Latest OTP -->
-            <div class="card">
+            <!-- Card 5: Latest OTP - WORKING -->
+            <div class="card working">
                 <h3>
                     🔐 Latest OTP
                     <span class="method get">GET</span>
+                    <span class="badge-status working">✅ OK</span>
                 </h3>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {otps: {number: otp}}</p>
                 <input type="text" id="otp-number" placeholder="+1234567890">
                 <button onclick="getLatestOTP()">Get Latest OTP</button>
                 <div class="response" id="otp-response">Masukkan nomor dan klik tombol</div>
             </div>
 
-            <!-- Card 6: Release Number -->
-            <div class="card">
+            <!-- Card 6: Release Number - RESTRICTED -->
+            <div class="card restricted">
                 <h3>
                     ♻️ Release Number
                     <span class="method post">POST</span>
+                    <span class="badge-status restricted">⚠️ Restricted</span>
                 </h3>
-                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">Response: {success, message}</p>
+                <p style="color: #999; margin-bottom: 10px; font-size: 12px;">⚠️ API Key ini tidak punya akses ke endpoint ini</p>
                 <input type="text" id="release-number" placeholder="+1234567890">
                 <button onclick="releaseNumber()">Release Number</button>
-                <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
+                <div class="response" id="release-response">⚠️ Butuh API Key dengan akses write</div>
             </div>
         </div>
     </div>
@@ -422,13 +410,12 @@
                 alert('Masukkan API Key terlebih dahulu!');
                 return null;
             }
-            // Validasi format API Key
             if (!key.startsWith('zelapi-')) {
-                alert('⚠️ Format API Key salah! Harus dimulai dengan "zelapi-" (contoh: zelapi-hazelganteng)');
+                alert('⚠️ Format API Key salah! Harus dimulai dengan "zelapi-"');
                 return null;
             }
             if (key === 'zelapi-') {
-                alert('⚠️ Masukkan nama setelah zelapi- (contoh: zelapi-hazelganteng)');
+                alert('⚠️ Masukkan nama setelah zelapi-');
                 return null;
             }
             return key;
@@ -454,6 +441,13 @@
             return JSON.stringify(data, null, 2);
         }
 
+        function updateStatus(message, type) {
+            const box = document.getElementById('statusBox');
+            const msg = document.getElementById('statusMessage');
+            box.className = 'status-box ' + type;
+            msg.textContent = message;
+        }
+
         async function testConnection() {
             const statusSpan = document.getElementById('test-status');
             const resultDiv = document.getElementById('test-result');
@@ -462,47 +456,49 @@
             if (!apiKey) return;
 
             statusSpan.innerHTML = '<span class="spinner"></span> Testing...';
-            resultDiv.textContent = '';
-            resultDiv.style.color = '#000';
+            resultDiv.innerHTML = '';
+            updateStatus('Sedang test koneksi...', 'warning');
 
             try {
+                // Test endpoint yang paling mungkin jalan
                 const res = await fetch(`${API_BASE}/last`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
 
                 if (res.ok) {
                     const data = await res.json();
-                    statusSpan.innerHTML = '✅ <span class="status-ok">Connected! API merespon dengan baik</span>';
-                    resultDiv.textContent = `Sukses! Response: ${JSON.stringify(data, null, 2)}`;
-                    resultDiv.style.color = '#28a745';
+                    statusSpan.innerHTML = '✅ <span class="status-ok">Connected!</span>';
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    updateStatus('✅ API Key valid! Endpoint GET bisa diakses. Endpoint POST (Request/Release) mungkin restricted.', 'success');
                 } else {
                     const text = await res.text();
                     try {
                         const jsonData = JSON.parse(text);
-                        if (jsonData.error && jsonData.error.message) {
-                            statusSpan.innerHTML = `❌ <span class="status-error">Error: ${jsonData.error.message}</span>`;
-                            resultDiv.textContent = `Status: ${res.status}\nError: ${jsonData.error.message}`;
-                        } else {
-                            statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
-                            resultDiv.textContent = `Response: ${JSON.stringify(jsonData, null, 2)}`;
+                        if (jsonData.error) {
+                            statusSpan.innerHTML = `❌ <span class="status-error">Error: ${jsonData.error.message || 'Unknown'}</span>`;
+                            resultDiv.innerHTML = `<pre>${JSON.stringify(jsonData, null, 2)}</pre>`;
+                            if (jsonData.error.message && jsonData.error.message.includes('Unauthorized')) {
+                                updateStatus('❌ API Key tidak valid atau tidak memiliki akses!', 'error');
+                            } else {
+                                updateStatus('⚠️ API Key mungkin hanya read-only (GET) tanpa akses POST.', 'warning');
+                            }
                         }
                     } catch (e) {
                         statusSpan.innerHTML = `❌ <span class="status-error">Error ${res.status}</span>`;
-                        resultDiv.textContent = `Response: ${text.substring(0, 500)}`;
+                        resultDiv.innerHTML = `<pre>${text.substring(0, 500)}</pre>`;
+                        updateStatus('⚠️ API merespon tapi tidak sesuai format yang diharapkan.', 'warning');
                     }
-                    resultDiv.style.color = '#dc3545';
                 }
             } catch (error) {
                 statusSpan.innerHTML = '❌ <span class="status-error">Error!</span>';
-                resultDiv.textContent = `Error: ${error.message}`;
-                resultDiv.style.color = '#dc3545';
+                resultDiv.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                updateStatus('❌ Gagal terhubung ke API server.', 'error');
             }
         }
 
         async function fetchEndpoint(endpoint, button) {
             const responseDiv = button.parentElement.querySelector('.response');
             const apiKey = getApiKey();
-
             if (!apiKey) return;
 
             responseDiv.className = 'response';
@@ -514,23 +510,18 @@
                 const res = await fetch(`${API_BASE}${endpoint}`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-
                 const text = await res.text();
 
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = button.textContent.replace('Loading...', '');
                     return;
                 }
 
                 let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    data = text;
-                }
+                try { data = JSON.parse(text); } catch (e) { data = text; }
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
@@ -539,16 +530,10 @@
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
                     if (data && typeof data === 'object') {
-                        if (data.error) {
-                            errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        } else if (data.message) {
-                            errorMsg += `: ${data.message}`;
-                        } else {
-                            errorMsg += `: ${JSON.stringify(data)}`;
-                        }
-                    } else {
-                        errorMsg += `: ${data}`;
-                    }
+                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
+                        else if (data.message) errorMsg += `: ${data.message}`;
+                        else errorMsg += `: ${JSON.stringify(data)}`;
+                    } else { errorMsg += `: ${data}`; }
                     responseDiv.textContent = errorMsg;
                 }
             } catch (error) {
@@ -566,7 +551,6 @@
             const responseDiv = document.getElementById('request-response');
             const button = event.target;
             const apiKey = getApiKey();
-
             if (!apiKey) return;
 
             responseDiv.className = 'response';
@@ -580,23 +564,18 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ service, country })
                 });
-
                 const text = await res.text();
 
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = 'Request Number';
                     return;
                 }
 
                 let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    data = text;
-                }
+                try { data = JSON.parse(text); } catch (e) { data = text; }
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
@@ -605,17 +584,11 @@
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
                     if (data && typeof data === 'object') {
-                        if (data.error) {
-                            errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        } else if (data.message) {
-                            errorMsg += `: ${data.message}`;
-                        } else {
-                            errorMsg += `: ${JSON.stringify(data)}`;
-                        }
-                    } else {
-                        errorMsg += `: ${data}`;
-                    }
-                    responseDiv.textContent = errorMsg;
+                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
+                        else if (data.message) errorMsg += `: ${data.message}`;
+                        else errorMsg += `: ${JSON.stringify(data)}`;
+                    } else { errorMsg += `: ${data}`; }
+                    responseDiv.textContent = errorMsg + '\n\n💡 Tips: API Key ini mungkin hanya read-only. Coba gunakan API Key dengan akses write.';
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
@@ -631,18 +604,11 @@
             const responseDiv = document.getElementById('otp-response');
             const button = event.target;
             const apiKey = getApiKey();
-
             if (!apiKey) return;
 
-            if (!number) {
+            if (!number || !number.startsWith('+')) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Mohon masukkan nomor telepon (format: +1234567890)';
-                return;
-            }
-
-            if (!number.startsWith('+')) {
-                responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Nomor harus diawali dengan + (contoh: +1234567890)';
+                responseDiv.textContent = '❌ Masukkan nomor dengan format +1234567890';
                 return;
             }
 
@@ -655,23 +621,18 @@
                 const res = await fetch(`${API_BASE}/latest_otp?number=${encodeURIComponent(number)}`, {
                     headers: { 'Authorization': `Bearer ${apiKey}` }
                 });
-
                 const text = await res.text();
 
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = 'Get Latest OTP';
                     return;
                 }
 
                 let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    data = text;
-                }
+                try { data = JSON.parse(text); } catch (e) { data = text; }
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
@@ -680,16 +641,10 @@
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
                     if (data && typeof data === 'object') {
-                        if (data.error) {
-                            errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        } else if (data.message) {
-                            errorMsg += `: ${data.message}`;
-                        } else {
-                            errorMsg += `: ${JSON.stringify(data)}`;
-                        }
-                    } else {
-                        errorMsg += `: ${data}`;
-                    }
+                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
+                        else if (data.message) errorMsg += `: ${data.message}`;
+                        else errorMsg += `: ${JSON.stringify(data)}`;
+                    } else { errorMsg += `: ${data}`; }
                     responseDiv.textContent = errorMsg;
                 }
             } catch (error) {
@@ -706,18 +661,11 @@
             const responseDiv = document.getElementById('release-response');
             const button = event.target;
             const apiKey = getApiKey();
-
             if (!apiKey) return;
 
-            if (!number) {
+            if (!number || !number.startsWith('+')) {
                 responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Mohon masukkan nomor telepon (format: +1234567890)';
-                return;
-            }
-
-            if (!number.startsWith('+')) {
-                responseDiv.className = 'response error';
-                responseDiv.textContent = '❌ Nomor harus diawali dengan + (contoh: +1234567890)';
+                responseDiv.textContent = '❌ Masukkan nomor dengan format +1234567890';
                 return;
             }
 
@@ -732,23 +680,18 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ number })
                 });
-
                 const text = await res.text();
 
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
-                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\nResponse: ${text.substring(0, 300)}...`;
+                    responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
                     button.disabled = false;
                     button.textContent = 'Release Number';
                     return;
                 }
 
                 let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    data = text;
-                }
+                try { data = JSON.parse(text); } catch (e) { data = text; }
 
                 if (res.ok) {
                     responseDiv.className = 'response success';
@@ -757,17 +700,11 @@
                     responseDiv.className = 'response error';
                     let errorMsg = `Error ${res.status}`;
                     if (data && typeof data === 'object') {
-                        if (data.error) {
-                            errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
-                        } else if (data.message) {
-                            errorMsg += `: ${data.message}`;
-                        } else {
-                            errorMsg += `: ${JSON.stringify(data)}`;
-                        }
-                    } else {
-                        errorMsg += `: ${data}`;
-                    }
-                    responseDiv.textContent = errorMsg;
+                        if (data.error) errorMsg += `: ${data.error.message || JSON.stringify(data.error)}`;
+                        else if (data.message) errorMsg += `: ${data.message}`;
+                        else errorMsg += `: ${JSON.stringify(data)}`;
+                    } else { errorMsg += `: ${data}`; }
+                    responseDiv.textContent = errorMsg + '\n\n💡 Tips: API Key ini mungkin hanya read-only. Coba gunakan API Key dengan akses write.';
                 }
             } catch (error) {
                 responseDiv.className = 'response error';
