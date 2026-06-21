@@ -143,26 +143,33 @@
             background: #6c63ff;
             color: #fff;
         }
-        .mt-10 { margin-top: 10px; }
-        .flex { display: flex; gap: 10px; flex-wrap: wrap; }
-        .flex-center { align-items: center; }
-        .gap-10 { gap: 10px; }
-        .w-full { width: 100%; }
-        .text-center { text-align: center; }
-        .text-muted { color: #aaa; font-size: 0.9rem; }
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .text-muted {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .flex {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 Zelapi Manager</h1>
         
-        <!-- Stats & Info -->
+        <!-- Status -->
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div class="card">
                 <h3>📊 Status</h3>
                 <div class="card-content">
                     <div id="apiStatus" class="status-badge info">Checking...</div>
-                    <div id="apiKeyDisplay" class="text-muted">Key: zelapi-4hwd4va</div>
+                    <div class="text-muted">Key: zelapi-4hwd4va</div>
+                    <div id="serverStatus" class="text-muted">Server: Checking...</div>
                 </div>
             </div>
         </div>
@@ -253,7 +260,7 @@
             </div>
         </div>
 
-        <!-- Global Response Log -->
+        <!-- Log -->
         <div class="card">
             <h3>📋 Log Aktifitas</h3>
             <div class="card-content">
@@ -265,15 +272,13 @@
 
     <script>
         // ========== CONFIGURATION ==========
-        const API_KEY = 'zelapi-4hwd4va';
-        const BASE_URL = 'https://api.zelapioffciall.dpdns.org/api/v1/nokos';
+        const API_BASE = window.location.origin;
 
         // ========== HELPER FUNCTIONS ==========
         async function apiCall(endpoint, method = 'GET', body = null) {
             const options = {
                 method: method,
                 headers: {
-                    'Authorization': `Bearer ${API_KEY}`,
                     'Content-Type': 'application/json'
                 }
             };
@@ -282,7 +287,7 @@
             }
 
             try {
-                const response = await fetch(`${BASE_URL}${endpoint}`, options);
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
                 const data = await response.json();
                 return { success: true, data, status: response.status };
             } catch (error) {
@@ -313,12 +318,27 @@
             document.getElementById('globalLog').className = 'response-box';
         }
 
+        function toggleLoading(button, isLoading) {
+            if (isLoading) {
+                button.classList.add('loading');
+                button.textContent = '⏳ Loading...';
+            } else {
+                button.classList.remove('loading');
+                button.textContent = button.dataset.originalText || button.textContent;
+            }
+        }
+
         // ========== API FUNCTIONS ==========
 
         // 1. Get Countries
         async function getCountries() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             logToGlobal('🌍 Mengambil daftar negara...');
-            const result = await apiCall('/countries?service=WhatsApp');
+            const result = await apiCall('/api/countries');
+            
             if (result.success) {
                 displayResponse('countriesResponse', result.data);
                 logToGlobal(`✅ Berhasil mengambil ${result.data.countries?.length || 0} negara`);
@@ -326,12 +346,18 @@
                 displayResponse('countriesResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal mengambil negara: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
         }
 
         // 2. Get My Numbers
         async function getMyNumbers() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             logToGlobal('📱 Mengambil daftar nomor saya...');
-            const result = await apiCall('/my_numbers');
+            const result = await apiCall('/api/my_numbers');
+            
             if (result.success) {
                 displayResponse('myNumbersResponse', result.data);
                 logToGlobal(`✅ Berhasil mengambil ${result.data.numbers?.length || 0} nomor`);
@@ -339,16 +365,21 @@
                 displayResponse('myNumbersResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal mengambil nomor: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
         }
 
         // 3. Request Number
         async function requestNumber() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             const service = document.getElementById('requestService').value;
             const country = document.getElementById('requestCountry').value;
             
             logToGlobal(`📨 Request nomor untuk ${service} di ${country}...`);
             
-            const result = await apiCall('/request_number', 'POST', {
+            const result = await apiCall('/api/request_number', 'POST', {
                 service: service,
                 country: country
             });
@@ -360,19 +391,25 @@
                 displayResponse('requestResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal request nomor: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
         }
 
         // 4. Release Number
         async function releaseNumber() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             const number = document.getElementById('releaseNumberInput').value.trim();
             if (!number) {
                 alert('Masukkan nomor yang akan di-release!');
+                toggleLoading(btn, false);
                 return;
             }
             
             logToGlobal(`🗑️ Me-release nomor ${number}...`);
             
-            const result = await apiCall('/release_number', 'POST', {
+            const result = await apiCall('/api/release_number', 'POST', {
                 number: number
             });
             
@@ -383,19 +420,25 @@
                 displayResponse('releaseResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal release nomor: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
         }
 
         // 5. Latest OTP
         async function getLatestOTP() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             const number = document.getElementById('otpNumberInput').value.trim();
             if (!number) {
                 alert('Masukkan nomor untuk cek OTP!');
+                toggleLoading(btn, false);
                 return;
             }
             
             logToGlobal(`🔍 Mengambil OTP terbaru untuk ${number}...`);
             
-            const result = await apiCall(`/latest_otp?number=${encodeURIComponent(number)}`);
+            const result = await apiCall(`/api/latest_otp?number=${encodeURIComponent(number)}`);
             
             if (result.success) {
                 displayResponse('latestOTPResponse', result.data);
@@ -408,15 +451,20 @@
                 displayResponse('latestOTPResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal mengambil OTP: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
         }
 
         // 6. My OTPs
         async function getMyOTPs() {
+            const btn = event.target;
+            btn.dataset.originalText = btn.textContent;
+            toggleLoading(btn, true);
+            
             const limit = document.getElementById('otpLimitInput').value || 10;
             
             logToGlobal(`📜 Mengambil riwayat OTP (limit: ${limit})...`);
             
-            const result = await apiCall(`/my_otps?limit=${limit}`);
+            const result = await apiCall(`/api/my_otps?limit=${limit}`);
             
             if (result.success) {
                 displayResponse('myOTPsResponse', result.data);
@@ -425,20 +473,44 @@
                 displayResponse('myOTPsResponse', { error: result.error }, false);
                 logToGlobal(`❌ Gagal mengambil riwayat OTP: ${result.error}`, true);
             }
+            toggleLoading(btn, false);
+        }
+
+        // ========== CHECK SERVER ==========
+        async function checkServer() {
+            try {
+                const response = await fetch('/api/test');
+                const data = await response.json();
+                document.getElementById('serverStatus').textContent = `Server: ${data.success ? '🟢 Online' : '🔴 Offline'}`;
+                document.getElementById('serverStatus').className = `text-muted ${data.success ? 'success' : 'error'}`;
+                
+                if (data.success) {
+                    document.getElementById('apiStatus').textContent = '🟢 Online';
+                    document.getElementById('apiStatus').className = 'status-badge success';
+                    logToGlobal('✅ Koneksi ke server berhasil');
+                } else {
+                    document.getElementById('apiStatus').textContent = '🔴 Error';
+                    document.getElementById('apiStatus').className = 'status-badge error';
+                    logToGlobal('❌ Gagal koneksi ke server', true);
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').textContent = '🔴 Server Error';
+                document.getElementById('apiStatus').textContent = '🔴 Offline';
+                document.getElementById('apiStatus').className = 'status-badge error';
+                logToGlobal(`❌ Server error: ${error.message}`, true);
+            }
         }
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('apiStatus').textContent = '🟢 Online';
-            document.getElementById('apiStatus').className = 'status-badge success';
+            checkServer();
             logToGlobal('🚀 Aplikasi siap!');
-            logToGlobal(`🔑 API Key: ${API_KEY}`);
             
             // Auto load initial data
             setTimeout(() => {
                 getCountries();
                 getMyNumbers();
-            }, 500);
+            }, 1000);
         });
 
         // Enter key support
