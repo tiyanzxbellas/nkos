@@ -2,334 +2,469 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nokos API Web</title>
     <style>
+        :root {
+            --bg: #060b0f;
+            --bg-elevated: #0b141a;
+            --surface: #0e1a21;
+            --surface-2: #112430;
+            --border: #1c3540;
+            --border-soft: #16262e;
+            --blue: #2f8eff;
+            --blue-bright: #6ab8ff;
+            --green: #00e08a;
+            --green-bright: #4dffb8;
+            --text: #e9f4f7;
+            --text-dim: #8aa7b1;
+            --text-faint: #5d7882;
+            --error: #ff5d72;
+            --error-bg: #2a0f17;
+            --warning: #ffbe55;
+            --warning-bg: #2a1f0c;
+            --success-bg: #0a261c;
+            --info-bg: #0a1f2c;
+            --radius: 14px;
+            --gradient: linear-gradient(135deg, var(--blue) 0%, var(--green) 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
+        html {
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:
+                radial-gradient(circle at 15% 0%, rgba(47,142,255,0.10), transparent 45%),
+                radial-gradient(circle at 85% 100%, rgba(0,224,138,0.08), transparent 45%),
+                var(--bg);
+            background-attachment: fixed;
             min-height: 100vh;
-            padding: 20px;
+            color: var(--text);
+            padding: clamp(10px, 3.5vw, 20px);
+            position: relative;
         }
+
+        /* faint scanline texture, signature element nodding to "signal" */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: repeating-linear-gradient(
+                180deg,
+                rgba(255,255,255,0.012) 0px,
+                rgba(255,255,255,0.012) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            z-index: 0;
+        }
+
+        /* top signal/progress bar — animates while any request is in flight */
+        .top-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+            background: rgba(255,255,255,0.03);
+        }
+        .top-loader.active { opacity: 1; }
+        .top-loader-bar {
+            height: 100%;
+            width: 30%;
+            background: var(--gradient);
+            box-shadow: 0 0 12px var(--green-bright), 0 0 4px var(--blue-bright);
+            animation: loaderSweep 1.1s ease-in-out infinite;
+        }
+        @keyframes loaderSweep {
+            0%   { transform: translateX(-100%); }
+            50%  { transform: translateX(180%); }
+            100% { transform: translateX(420%); }
+        }
+
         .container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
-            background: white;
+            background: linear-gradient(180deg, var(--bg-elevated), var(--surface));
+            border: 1px solid var(--border-soft);
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: clamp(16px, 4vw, 30px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(47,142,255,0.04) inset;
+            position: relative;
+            z-index: 1;
+            animation: pageEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 2.5em;
+            color: var(--text);
+            margin-bottom: 4px;
+            font-size: clamp(1.5rem, 5vw, 2.5em);
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            line-height: 1.25;
+            word-break: break-word;
         }
+
         .subtitle {
-            color: #666;
+            color: var(--text-dim);
             margin-bottom: 20px;
-            font-size: 1.1em;
+            font-size: clamp(0.9em, 2.5vw, 1.1em);
         }
+
         .api-key-info {
-            background: #f0f4ff;
+            background: var(--surface-2);
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--blue);
+            max-width: 100%;
         }
         .api-key-info label {
             font-weight: 600;
-            color: #667eea;
+            color: var(--blue-bright);
         }
         .api-key-info input {
             width: 100%;
+            max-width: 100%;
             padding: 10px;
             margin-top: 8px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            font-size: 14px;
-            font-family: monospace;
-            background: white;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            background: var(--bg-elevated);
+            color: var(--text);
         }
         .api-key-info input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0,224,138,0.15);
         }
         .api-key-info .hint {
-            color: #666;
+            color: var(--text-faint);
             display: block;
             margin-top: 5px;
             font-size: 12px;
+            overflow-wrap: anywhere;
         }
+        .api-key-info .hint code {
+            background: var(--surface);
+            color: var(--green-bright);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
         .api-url-info {
-            background: #e8f5e9;
+            background: var(--success-bg);
             padding: 12px 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            border-left: 4px solid #4caf50;
+            border-left: 4px solid var(--green);
+            max-width: 100%;
+            overflow-wrap: anywhere;
         }
         .api-url-info code {
-            background: #fff;
+            background: rgba(0,0,0,0.35);
+            color: var(--green-bright);
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 13px;
             word-break: break-all;
+            display: inline-block;
+            max-width: 100%;
         }
+
         .status-box {
             padding: 12px 15px;
             border-radius: 10px;
             margin-bottom: 15px;
             border-left: 4px solid;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
-        .status-box.success {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        .status-box.warning {
-            background: #fff3cd;
-            border-color: #ffc107;
-        }
-        .status-box.error {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-        .status-box.info {
-            background: #d1ecf1;
-            border-color: #17a2b8;
-        }
+        .status-box.success { background: var(--success-bg); border-color: var(--green); }
+        .status-box.warning  { background: var(--warning-bg); border-color: var(--warning); }
+        .status-box.error    { background: var(--error-bg); border-color: var(--error); }
+        .status-box.info     { background: var(--info-bg); border-color: var(--blue); }
         .status-box strong {
             display: block;
             margin-bottom: 5px;
         }
+
+        .actions-row {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-width: 100%;
+        }
+        .test-btn {
+            background: var(--gradient);
+            border: none;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            color: #04140d;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 4px 16px rgba(0,224,138,0.18);
+        }
+        .test-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,224,138,0.28); }
+        .test-btn:active { transform: scale(0.97); }
+        .test-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        #test-status { font-size: 14px; }
+        .test-result { margin-top: 10px; font-size: 12px; word-break: break-word; max-width: 100%; overflow-wrap: anywhere; }
+        .test-result pre {
+            background: var(--surface-2);
+            color: var(--text);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            max-height: 150px;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
             gap: 20px;
             margin-top: 20px;
+            max-width: 100%;
         }
+
         .card {
-            background: #f8f9fa;
+            background: var(--surface);
             border-radius: 15px;
             padding: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid transparent;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 1px solid var(--border-soft);
+            min-width: 0;
+            max-width: 100%;
+            animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+        .grid .card:nth-child(1) { animation-delay: 0.05s; }
+        .grid .card:nth-child(2) { animation-delay: 0.10s; }
+        .grid .card:nth-child(3) { animation-delay: 0.15s; }
+        .grid .card:nth-child(4) { animation-delay: 0.20s; }
+        .grid .card:nth-child(5) { animation-delay: 0.25s; }
+        .grid .card:nth-child(6) { animation-delay: 0.30s; }
+
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+            border-color: var(--border);
         }
-        .card.working {
-            border-color: #28a745;
+        .card.working { border-color: rgba(0,224,138,0.35); }
+
+        .card.is-busy {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 1px var(--blue), 0 0 20px rgba(47,142,255,0.25);
+            animation: cardBusyPulse 1.4s ease-in-out infinite;
         }
+        @keyframes cardBusyPulse {
+            0%, 100% { box-shadow: 0 0 0 1px var(--blue), 0 0 14px rgba(47,142,255,0.18); }
+            50%      { box-shadow: 0 0 0 1px var(--green), 0 0 22px rgba(0,224,138,0.28); }
+        }
+
         .card h3 {
-            color: #333;
+            color: var(--text);
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
+            word-break: break-word;
         }
         .card h3 .method {
             font-size: 12px;
             padding: 3px 10px;
             border-radius: 20px;
             font-weight: 600;
+            white-space: nowrap;
         }
-        .method.get {
-            background: #28a745;
-            color: white;
-        }
-        .method.post {
-            background: #007bff;
-            color: white;
-        }
+        .method.get  { background: rgba(0,224,138,0.15); color: var(--green-bright); border: 1px solid rgba(0,224,138,0.3); }
+        .method.post { background: rgba(47,142,255,0.15); color: var(--blue-bright); border: 1px solid rgba(47,142,255,0.3); }
+
         .card .badge-status {
             font-size: 11px;
             padding: 2px 10px;
             border-radius: 20px;
             font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.25s ease, color 0.25s ease;
         }
-        .badge-status.working {
-            background: #d4edda;
-            color: #155724;
-        }
-        .badge-status.restricted {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .badge-status.empty {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .badge-status.available {
-            background: #cce5ff;
-            color: #004085;
-        }
+        .badge-status.working    { background: rgba(0,224,138,0.15); color: var(--green-bright); }
+        .badge-status.restricted { background: var(--warning-bg); color: var(--warning); }
+        .badge-status.empty      { background: var(--error-bg); color: var(--error); }
+
         .card input,
         .card select {
             width: 100%;
+            max-width: 100%;
             padding: 10px;
             margin: 8px 0;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
+            background: var(--bg-elevated);
+            color: var(--text);
         }
-        .card select option {
-            padding: 5px;
+        .card input::placeholder { color: var(--text-faint); }
+        .card input:focus, .card select:focus {
+            outline: none;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0,224,138,0.12);
         }
+        .card select option { background: var(--bg-elevated); color: var(--text); }
+
         .card button {
             width: 100%;
             padding: 12px;
             margin-top: 10px;
-            background: #667eea;
-            color: white;
+            background: var(--gradient);
+            color: #04140d;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .card button:hover {
-            background: #5a67d8;
-        }
-        .card button:active {
-            transform: scale(0.98);
-        }
-        .card button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .card button.btn-check-stock {
-            background: #28a745;
-            font-size: 14px;
-            padding: 8px;
-        }
-        .card button.btn-check-stock:hover {
-            background: #1e7e34;
-        }
+        .card button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .card button:active { transform: scale(0.98); }
+        .card button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; filter: none; }
+
         .response {
             margin-top: 15px;
             padding: 12px;
-            background: #fff;
+            background: var(--bg-elevated);
+            color: var(--text);
             border-radius: 8px;
-            border: 1px solid #ddd;
-            max-height: 250px;
+            border: 1px solid var(--border-soft);
+            max-height: 200px;
             overflow-y: auto;
+            overflow-x: hidden;
             font-size: 13px;
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
-            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            max-width: 100%;
+            transition: border-color 0.25s ease, background 0.25s ease;
         }
-        .response.success {
-            border-color: #28a745;
-            background: #f0fff4;
+        .response.success { border-color: var(--green); background: var(--success-bg); }
+        .response.error    { border-color: var(--error); background: var(--error-bg); }
+        .response.info     { border-color: var(--blue); background: var(--info-bg); }
+        .response.warning   { border-color: var(--warning); background: var(--warning-bg); }
+        .response.loading {
+            border-color: var(--blue);
+            background: linear-gradient(90deg, var(--bg-elevated) 25%, rgba(47,142,255,0.10) 50%, var(--bg-elevated) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.3s ease-in-out infinite;
         }
-        .response.error {
-            border-color: #dc3545;
-            background: #fff5f5;
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-        .response.info {
-            border-color: #17a2b8;
-            background: #f0f9ff;
-        }
-        .response.warning {
-            border-color: #ffc107;
-            background: #fff8e1;
-        }
+
         .spinner {
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: var(--green-bright);
+            border-right-color: var(--blue-bright);
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
         }
         @keyframes spin {
-            0% { transform: rotate(0deg); }
+            0%   { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
         @media (max-width: 768px) {
             .grid { grid-template-columns: 1fr; }
-            h1 { font-size: 2em; }
         }
-        .status-ok { color: #28a745; font-weight: bold; }
-        .status-error { color: #dc3545; font-weight: bold; }
-        .status-warning { color: #856404; font-weight: bold; }
-        .test-result {
-            margin-top: 10px;
-            font-size: 12px;
-            word-break: break-all;
-        }
-        .test-result pre {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 6px;
-            overflow-x: auto;
-            max-height: 150px;
-            font-size: 11px;
-        }
+
+        .status-ok      { color: var(--green-bright); font-weight: bold; }
+        .status-error   { color: var(--error); font-weight: bold; }
+        .status-warning { color: var(--warning); font-weight: bold; }
+
         .suggestion-box {
-            background: #e8f5e9;
+            background: var(--success-bg);
+            color: var(--text);
             padding: 10px;
             border-radius: 6px;
             margin-top: 10px;
             font-size: 13px;
-            border-left: 3px solid #4caf50;
+            border-left: 3px solid var(--green);
+            overflow-wrap: anywhere;
         }
-        .suggestion-box strong {
-            color: #2e7d32;
-        }
-        .stock-info {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 5px 0 10px 0;
-        }
-        .stock-tag {
-            background: #e9ecef;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-        .stock-tag.available {
-            background: #d4edda;
-            color: #155724;
-        }
-        .stock-tag.empty {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .stock-tag.unknown {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-group button {
-            flex: 1;
-        }
-        .btn-group button:first-child {
-            flex: 2;
-        }
-        .combo-row {
-            display: flex;
-            gap: 10px;
-        }
-        .combo-row select {
-            flex: 1;
+        .suggestion-box strong { color: var(--green-bright); }
+
+        ::selection { background: rgba(0,224,138,0.3); color: var(--text); }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-elevated); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--blue); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .container, .card, .response.loading, .top-loader-bar, .card.is-busy, .spinner {
+                animation: none !important;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="top-loader" id="topLoader"><div class="top-loader-bar"></div></div>
+
     <div class="container">
         <h1>📱 Nokos API Web</h1>
         <p class="subtitle">Interface untuk mengelola nomor dan OTP</p>
@@ -340,7 +475,7 @@
 
         <div class="api-key-info">
             <label>🔑 API Key:</label>
-            <input type="text" id="apiKeyInput" value="zelapi-hazelganteng" placeholder="zelapi-namakamu">
+            <input type="text" id="apiKeyInput" value="zelapi-4hwd4va" placeholder="zelapi-namakamu">
             <span class="hint">Format: <code>zelapi-</code> diikuti dengan nama (contoh: <code>zelapi-hazelganteng</code>)</span>
         </div>
 
@@ -349,10 +484,9 @@
             <span id="statusMessage">Klik Test Connection untuk cek koneksi</span>
         </div>
 
-        <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button onclick="testConnection()" style="background: #ffc107; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">🔌 Test Connection</button>
-            <button onclick="checkAllStock()" style="background: #17a2b8; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; color: white;">📊 Cek Semua Stok</button>
-            <span id="test-status" style="margin-left: 15px; display: flex; align-items: center;"></span>
+        <div class="actions-row">
+            <button class="test-btn" onclick="testConnection()">🔌 Test Connection</button>
+            <span id="test-status"></span>
         </div>
         <div id="test-result" class="test-result"></div>
 
@@ -364,6 +498,7 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
+                <p style="color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Mendapatkan daftar nomor terakhir</p>
                 <button onclick="fetchEndpoint('/last', this)">Get Last Numbers</button>
                 <div class="response" id="last-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -375,6 +510,7 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
+                <p style="color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Data lifetime numbers</p>
                 <button onclick="fetchEndpoint('/lifetime', this)">Get Lifetime</button>
                 <div class="response" id="lifetime-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -386,6 +522,7 @@
                     <span class="method get">GET</span>
                     <span class="badge-status working">✅ OK</span>
                 </h3>
+                <p style="color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Feed OTP terbaru</p>
                 <button onclick="fetchEndpoint('/feed', this)">Get Feed</button>
                 <div class="response" id="feed-response">Klik tombol untuk melihat hasil</div>
             </div>
@@ -397,54 +534,45 @@
                     <span class="method post">POST</span>
                     <span class="badge-status" id="request-badge">🔄 Cek Stok</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Minta nomor baru untuk service tertentu</p>
-                
-                <div class="stock-info" id="stock-info">
-                    <span class="stock-tag unknown">🔍 Klik "Cek Stok" dulu</span>
+                <p style="color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Minta nomor baru untuk service tertentu</p>
+                <div class="suggestion-box" id="request-suggestion">
+                    <strong>💡 Tips:</strong> Coba ganti service/country kalau stok habis
                 </div>
-
-                <div class="combo-row">
-                    <select id="request-service">
-                        <option value="telegram">Telegram</option>
-                        <option value="whatsapp" selected>WhatsApp</option>
-                        <option value="gmail">Gmail</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="tiktok">TikTok</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="snapchat">Snapchat</option>
-                        <option value="rednote">Rednote</option>
-                        <option value="tinder">Tinder</option>
-                        <option value="shopee">Shopee</option>
-                        <option value="google">Google</option>
-                        <option value="netflix">Netflix</option>
-                        <option value="grab">Grab</option>
-                        <option value="pinterest">Pinterest</option>
-                        <option value="huawei">Huawei</option>
-                    </select>
-                    <select id="request-country">
-                        <option value="us">🇺🇸 US</option>
-                        <option value="uk">🇬🇧 UK</option>
-                        <option value="id" selected>🇮🇩 Indonesia</option>
-                        <option value="my">🇲🇾 Malaysia</option>
-                        <option value="sg">🇸🇬 Singapore</option>
-                        <option value="ph">🇵🇭 Philippines</option>
-                        <option value="ve">🇻🇪 Venezuela</option>
-                        <option value="zm">🇿🇲 Zambia</option>
-                        <option value="zw">🇿🇼 Zimbabwe</option>
-                        <option value="ng">🇳🇬 Nigeria</option>
-                        <option value="np">🇳🇵 Nepal</option>
-                        <option value="bi">🇧🇮 Burundi</option>
-                        <option value="sn">🇸🇳 Senegal</option>
-                        <option value="mr">🇲🇷 Mauritania</option>
-                        <option value="lb">🇱🇧 Lebanon</option>
-                    </select>
-                </div>
-
-                <div class="btn-group">
-                    <button onclick="requestNumber()">📞 Request Number</button>
-                    <button onclick="checkStock()" class="btn-check-stock">🔍 Cek Stok</button>
-                </div>
+                <select id="request-service">
+                    <option value="telegram">Telegram</option>
+                    <option value="whatsapp" selected>WhatsApp</option>
+                    <option value="gmail">Gmail</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="snapchat">Snapchat</option>
+                    <option value="rednote">Rednote</option>
+                    <option value="tinder">Tinder</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="google">Google</option>
+                    <option value="netflix">Netflix</option>
+                    <option value="grab">Grab</option>
+                    <option value="pinterest">Pinterest</option>
+                </select>
+                <select id="request-country">
+                    <option value="us">🇺🇸 United States</option>
+                    <option value="uk">🇬🇧 United Kingdom</option>
+                    <option value="id" selected>🇮🇩 Indonesia</option>
+                    <option value="my">🇲🇾 Malaysia</option>
+                    <option value="sg">🇸🇬 Singapore</option>
+                    <option value="ph">🇵🇭 Philippines</option>
+                    <option value="ve">🇻🇪 Venezuela</option>
+                    <option value="zm">🇿🇲 Zambia</option>
+                    <option value="zw">🇿🇼 Zimbabwe</option>
+                    <option value="ng">🇳🇬 Nigeria</option>
+                    <option value="np">🇳🇵 Nepal</option>
+                    <option value="bi">🇧🇮 Burundi</option>
+                    <option value="sn">🇸🇳 Senegal</option>
+                    <option value="mr">🇲🇷 Mauritania</option>
+                    <option value="lb">🇱🇧 Lebanon</option>
+                </select>
+                <button onclick="requestNumber()">Request Number</button>
                 <div class="response" id="request-response">Pilih service & country, lalu klik tombol</div>
             </div>
 
@@ -467,7 +595,7 @@
                     <span class="method post">POST</span>
                     <span class="badge-status" id="release-badge">🔄 Cek</span>
                 </h3>
-                <p style="color: #666; margin-bottom: 10px; font-size: 14px;">Lepas nomor yang sudah tidak dipakai</p>
+                <p style="color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Lepas nomor yang sudah tidak dipakai</p>
                 <input type="text" id="release-number" placeholder="+1234567890">
                 <button onclick="releaseNumber()">Release Number</button>
                 <div class="response" id="release-response">Masukkan nomor dan klik tombol</div>
@@ -478,8 +606,53 @@
     <script>
         const API_BASE = 'https://zelapioffciall.dpdns.org/api/v1/nokos';
 
-        // Daftar service yang diketahui
-        const SERVICE_LIST = ['telegram', 'whatsapp', 'gmail', 'facebook', 'instagram', 'tiktok', 'twitter', 'snapchat', 'rednote', 'tinder', 'shopee', 'google', 'netflix', 'grab', 'pinterest', 'huawei'];
+        /* ---------- zoom lock (covers browsers that ignore user-scalable=no) ---------- */
+        document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+        document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (e) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) e.preventDefault();
+            lastTouchEnd = now;
+        }, { passive: false });
+        document.addEventListener('wheel', function (e) {
+            if (e.ctrlKey) e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault();
+        });
+
+        /* ---------- top loading bar ---------- */
+        let activeRequests = 0;
+        function showLoader() {
+            activeRequests++;
+            document.getElementById('topLoader').classList.add('active');
+        }
+        function hideLoader() {
+            activeRequests = Math.max(0, activeRequests - 1);
+            if (activeRequests === 0) {
+                document.getElementById('topLoader').classList.remove('active');
+            }
+        }
+
+        /* ---------- button loading helper (keeps original label intact) ---------- */
+        function setButtonLoading(button, loading, loadingLabel) {
+            if (loading) {
+                if (button.dataset.originalText === undefined) {
+                    button.dataset.originalText = button.textContent;
+                }
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner"></span>' + (loadingLabel || 'Memproses...');
+            } else {
+                button.disabled = false;
+                button.textContent = button.dataset.originalText !== undefined ? button.dataset.originalText : button.textContent;
+            }
+        }
+
+        function setCardBusy(button, busy) {
+            const card = button.closest('.card');
+            if (card) card.classList.toggle('is-busy', busy);
+        }
 
         function getApiKey() {
             const key = document.getElementById('apiKeyInput').value.trim();
@@ -535,173 +708,6 @@
             return null;
         }
 
-        function updateStockTag(service, country, hasStock) {
-            const infoDiv = document.getElementById('stock-info');
-            let tagClass = 'unknown';
-            let text = '❓ Unknown';
-            
-            if (hasStock === true) {
-                tagClass = 'available';
-                text = '✅ Ada stok!';
-            } else if (hasStock === false) {
-                tagClass = 'empty';
-                text = '❌ Stok habis';
-            } else {
-                tagClass = 'unknown';
-                text = '🔍 Klik "Cek Stok"';
-            }
-            
-            infoDiv.innerHTML = `
-                <span class="stock-tag ${tagClass}">📦 ${service.toUpperCase()} - ${country.toUpperCase()}: ${text}</span>
-                <span style="font-size:11px; color:#666;">${hasStock === true ? 'Bisa request!' : hasStock === false ? 'Coba ganti service/country' : ''}</span>
-            `;
-        }
-
-        async function checkStock() {
-            const service = document.getElementById('request-service').value;
-            const country = document.getElementById('request-country').value;
-            const badge = document.getElementById('request-badge');
-            const responseDiv = document.getElementById('request-response');
-            const apiKey = getApiKey();
-            
-            if (!apiKey) return;
-
-            badge.textContent = '⏳ Loading...';
-            responseDiv.className = 'response info';
-            responseDiv.textContent = '⏳ Cek stok...';
-
-            try {
-                // Coba request dulu buat test stok
-                const res = await fetch(`${API_BASE}/request`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ service, country })
-                });
-                const text = await res.text();
-                let data;
-                try { data = JSON.parse(text); } catch (e) { data = text; }
-
-                if (res.ok) {
-                    // Ada stok! Tapi kita langsung release biar gak kepake
-                    if (data.number) {
-                        updateStockTag(service, country, true);
-                        badge.textContent = '✅ Ada Stok';
-                        badge.className = 'badge-status available';
-                        responseDiv.className = 'response success';
-                        responseDiv.textContent = `✅ Ada stok! Nomor ${data.number} tersedia.\n\n💡 Klik "Request Number" untuk ambil.`;
-                        
-                        // Auto release biar gak kepake
-                        try {
-                            await fetch(`${API_BASE}/release`, {
-                                method: 'POST',
-                                headers: getHeaders(),
-                                body: JSON.stringify({ number: data.number })
-                            });
-                        } catch(e) {}
-                    }
-                } else {
-                    const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
-                    if (errMsg.toLowerCase().includes('no available numbers') || errMsg.toLowerCase().includes('not available')) {
-                        updateStockTag(service, country, false);
-                        badge.textContent = '❌ Stok Habis';
-                        badge.className = 'badge-status empty';
-                        responseDiv.className = 'response warning';
-                        responseDiv.innerHTML = `❌ Stok habis untuk ${service} - ${country}\n\n💡 Coba ganti service atau country lain.`;
-                    } else {
-                        updateStockTag(service, country, null);
-                        badge.textContent = '❓ Unknown';
-                        badge.className = 'badge-status restricted';
-                        responseDiv.className = 'response error';
-                        responseDiv.textContent = `Error: ${errMsg}`;
-                    }
-                }
-            } catch (error) {
-                responseDiv.className = 'response error';
-                responseDiv.textContent = `Error: ${error.message}`;
-                badge.textContent = '❌ Error';
-                badge.className = 'badge-status empty';
-            }
-        }
-
-        async function checkAllStock() {
-            const statusSpan = document.getElementById('test-status');
-            const resultDiv = document.getElementById('test-result');
-            const apiKey = getApiKey();
-            
-            if (!apiKey) return;
-
-            statusSpan.innerHTML = '<span class="spinner"></span> Cek semua stok...';
-            resultDiv.innerHTML = '';
-            updateStatus('Sedang cek stok semua service...', 'info');
-
-            let results = [];
-            const countries = ['id', 'us', 'uk', 've', 'zm'];
-
-            for (const service of SERVICE_LIST.slice(0, 6)) { // Cek 6 service dulu biar cepat
-                for (const country of countries) {
-                    try {
-                        const res = await fetch(`${API_BASE}/request`, {
-                            method: 'POST',
-                            headers: getHeaders(),
-                            body: JSON.stringify({ service, country })
-                        });
-                        const text = await res.text();
-                        let data;
-                        try { data = JSON.parse(text); } catch (e) { data = text; }
-
-                        let hasStock = false;
-                        let errorMsg = '';
-                        
-                        if (res.ok && data.number) {
-                            hasStock = true;
-                            // Auto release
-                            try {
-                                await fetch(`${API_BASE}/release`, {
-                                    method: 'POST',
-                                    headers: getHeaders(),
-                                    body: JSON.stringify({ number: data.number })
-                                });
-                            } catch(e) {}
-                        } else {
-                            const err = parseError(data) || '';
-                            if (err.toLowerCase().includes('no available numbers')) {
-                                hasStock = false;
-                            } else {
-                                errorMsg = err;
-                            }
-                        }
-
-                        results.push({ service, country, hasStock, errorMsg });
-                    } catch(e) {
-                        results.push({ service, country, hasStock: null, errorMsg: e.message });
-                    }
-                }
-            }
-
-            // Tampilkan hasil
-            let html = '<div style="font-weight:bold; margin-bottom:10px;">📊 Hasil Cek Stok:</div><div style="display:flex; flex-wrap:wrap; gap:5px;">';
-            for (const r of results) {
-                let color = '#6c757d';
-                let label = '❓';
-                if (r.hasStock === true) { color = '#28a745'; label = '✅'; }
-                else if (r.hasStock === false) { color = '#dc3545'; label = '❌'; }
-                html += `<span style="background:${color}; color:white; padding:4px 10px; border-radius:15px; font-size:11px;">${label} ${r.service} - ${r.country.toUpperCase()}</span>`;
-            }
-            html += '</div>';
-            
-            // Highlight yang ada stok
-            const available = results.filter(r => r.hasStock === true);
-            if (available.length > 0) {
-                html += `<div style="margin-top:10px; color:#28a745; font-weight:bold;">✅ Ada stok di: ${available.map(r => r.service + '-' + r.country.toUpperCase()).join(', ')}</div>`;
-            } else {
-                html += `<div style="margin-top:10px; color:#dc3545;">❌ Semua stok habis. Coba lagi nanti atau cek service lain.</div>`;
-            }
-
-            resultDiv.innerHTML = html;
-            statusSpan.innerHTML = '✅ Selesai';
-            updateStatus('✅ Cek stok selesai! Lihat hasil di bawah.', 'success');
-        }
-
         async function testConnection() {
             const statusSpan = document.getElementById('test-status');
             const resultDiv = document.getElementById('test-result');
@@ -709,6 +715,7 @@
 
             if (!apiKey) return;
 
+            showLoader();
             statusSpan.innerHTML = '<span class="spinner"></span> Testing...';
             resultDiv.innerHTML = '';
             updateStatus('Sedang test koneksi...', 'info');
@@ -741,6 +748,8 @@
                 statusSpan.innerHTML = '❌ <span class="status-error">Error!</span>';
                 resultDiv.innerHTML = `<pre>Error: ${error.message}</pre>`;
                 updateStatus('❌ Gagal terhubung ke API server.', 'error');
+            } finally {
+                hideLoader();
             }
         }
 
@@ -749,10 +758,11 @@
             const apiKey = getApiKey();
             if (!apiKey) return;
 
-            responseDiv.className = 'response';
+            showLoader();
+            setCardBusy(button, true);
+            responseDiv.className = 'response loading';
             responseDiv.textContent = 'Loading...';
-            button.disabled = true;
-            button.textContent = 'Loading...';
+            setButtonLoading(button, true);
 
             try {
                 const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -763,8 +773,6 @@
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
-                    button.disabled = false;
-                    button.textContent = button.textContent.replace('Loading...', '');
                     return;
                 }
 
@@ -783,8 +791,9 @@
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.disabled = false;
-                button.textContent = button.textContent.replace('Loading...', '');
+                setButtonLoading(button, false);
+                setCardBusy(button, false);
+                hideLoader();
             }
         }
 
@@ -797,10 +806,11 @@
             const apiKey = getApiKey();
             if (!apiKey) return;
 
-            responseDiv.className = 'response';
+            showLoader();
+            setCardBusy(button, true);
+            responseDiv.className = 'response loading';
             responseDiv.textContent = '⏳ Loading...';
-            button.disabled = true;
-            button.textContent = 'Loading...';
+            setButtonLoading(button, true);
             badge.textContent = '⏳ Loading...';
 
             try {
@@ -814,8 +824,6 @@
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
-                    button.disabled = false;
-                    button.textContent = 'Request Number';
                     badge.textContent = '⚠️ Error';
                     return;
                 }
@@ -828,20 +836,23 @@
                     responseDiv.textContent = '✅ ' + formatResponse(data);
                     badge.textContent = '✅ Berhasil';
                     badge.className = 'badge-status working';
-                    updateStockTag(service, country, true);
                 } else {
                     responseDiv.className = 'response error';
                     const errMsg = parseError(data) || (typeof data === 'string' ? data : JSON.stringify(data));
-                    
+
                     if (errMsg.toLowerCase().includes('no available numbers') || errMsg.toLowerCase().includes('not available')) {
-                        responseDiv.innerHTML = `❌ ${errMsg}\n\n💡 <strong>Stok habis!</strong> Coba:\n• Ganti service (contoh: dari WhatsApp ke Telegram)\n• Ganti country (contoh: dari Indonesia ke US)\n• Tunggu beberapa menit lalu coba lagi\n• Klik "Cek Stok" dulu untuk cek ketersediaan`;
-                        badge.textContent = '❌ Stok Habis';
+                        responseDiv.innerHTML = `❌ ${errMsg}
+
+💡 <strong>Stok nomor habis!</strong> Coba:
+• Ganti service (contoh: dari WhatsApp ke Telegram)
+• Ganti country (contoh: dari Indonesia ke US)
+• Tunggu beberapa menit lalu coba lagi`;
+                        badge.textContent = '⚠️ Stok Habis';
                         badge.className = 'badge-status empty';
-                        updateStockTag(service, country, false);
                     } else if (errMsg.toLowerCase().includes('unauthorized')) {
-                        responseDiv.innerHTML = `❌ ${errMsg}\n\n💡 API Key tidak punya akses. Coba API Key lain.`;
+                        responseDiv.textContent = `❌ ${errMsg}\n\n💡 API Key tidak punya akses. Coba API Key lain.`;
                         badge.textContent = '🚫 Unauthorized';
-                        badge.className = 'badge-status restricted';
+                        badge.className = 'badge-status empty';
                     } else {
                         responseDiv.textContent = `❌ Error ${res.status}: ${errMsg}`;
                         badge.textContent = '❌ Error';
@@ -854,8 +865,9 @@
                 badge.textContent = '❌ Error';
                 badge.className = 'badge-status empty';
             } finally {
-                button.disabled = false;
-                button.textContent = 'Request Number';
+                setButtonLoading(button, false);
+                setCardBusy(button, false);
+                hideLoader();
             }
         }
 
@@ -872,10 +884,11 @@
                 return;
             }
 
-            responseDiv.className = 'response';
+            showLoader();
+            setCardBusy(button, true);
+            responseDiv.className = 'response loading';
             responseDiv.textContent = 'Loading...';
-            button.disabled = true;
-            button.textContent = 'Loading...';
+            setButtonLoading(button, true);
 
             try {
                 const res = await fetch(`${API_BASE}/latest_otp?number=${encodeURIComponent(number)}`, {
@@ -886,8 +899,6 @@
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
-                    button.disabled = false;
-                    button.textContent = 'Get Latest OTP';
                     return;
                 }
 
@@ -906,8 +917,9 @@
                 responseDiv.className = 'response error';
                 responseDiv.textContent = `Error: ${error.message}`;
             } finally {
-                button.disabled = false;
-                button.textContent = 'Get Latest OTP';
+                setButtonLoading(button, false);
+                setCardBusy(button, false);
+                hideLoader();
             }
         }
 
@@ -925,10 +937,11 @@
                 return;
             }
 
-            responseDiv.className = 'response';
+            showLoader();
+            setCardBusy(button, true);
+            responseDiv.className = 'response loading';
             responseDiv.textContent = 'Loading...';
-            button.disabled = true;
-            button.textContent = 'Loading...';
+            setButtonLoading(button, true);
             badge.textContent = '⏳ Loading...';
 
             try {
@@ -942,8 +955,6 @@
                 if (text.includes('<!DOCTYPE') || text.includes('<html')) {
                     responseDiv.className = 'response error';
                     responseDiv.textContent = `⚠️ Endpoint tidak ditemukan (404).\n\n${text.substring(0, 300)}...`;
-                    button.disabled = false;
-                    button.textContent = 'Release Number';
                     badge.textContent = '⚠️ Error';
                     return;
                 }
@@ -969,12 +980,13 @@
                 badge.textContent = '❌ Error';
                 badge.className = 'badge-status empty';
             } finally {
-                button.disabled = false;
-                button.textContent = 'Release Number';
+                setButtonLoading(button, false);
+                setCardBusy(button, false);
+                hideLoader();
             }
         }
 
-        // Auto test saat halaman dimuat
+        // Auto test saat halaman dimuat / refresh
         window.onload = function() {
             setTimeout(testConnection, 500);
         };
